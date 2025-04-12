@@ -18,7 +18,7 @@ class S3Service:
                 )
             logging.info("Initializing Logging.")
 
-            self.bucket_name = "pmc-articles"
+            self.bucket_name = "pubanalyzer-articles"
             logging.info(f"Setting bucket name to {self.bucket_name}.")
 
             logging.info("Initializing S3Service.")
