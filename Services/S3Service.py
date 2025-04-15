@@ -1,14 +1,15 @@
 import boto3
 import logging
+from dotenv import load_dotenv
+import os
 
 # This file contains the S3Service class which is responsible for interacting with the AWS S3 Service.
 # It includes methods for uploading, downloading, and listing files in an S3 bucket.
 
-##TODO : Create Bucket and IAM role.
-
 class S3Service:
-    def __init__(self, region_name):
+    def __init__(self):
         try:        
+            load_dotenv()
             logging.basicConfig(
                 level=logging.INFO,
                 format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -22,14 +23,13 @@ class S3Service:
             logging.info(f"Setting bucket name to {self.bucket_name}.")
 
             logging.info("Initializing S3Service.")
-            self.s3_client = boto3.client('s3', region_name=region_name)
+            self.s3_client = boto3.client('s3', region_name="us-east-2")
             logging.info("S3 client connection created successfully.")
 
         except:
             logging.error("Failed to create S3 client. Please check your AWS credentials and region.")
             raise
 
-    @staticmethod
     def upload_file(self, file_name, object_name=None):
         ##DocManager should have already validated that the file is not a duplicate
         ##Object name should be the PMC ID of the article.
@@ -44,7 +44,6 @@ class S3Service:
             logging.error(f"Failed to upload {file_name} to bucket {self.bucket_name}.")
             raise
 
-    @staticmethod
     def download_file(self, object_name, file_name):
         try:
             self.s3_client.download_file(self.bucket_name, object_name, file_name)
@@ -53,7 +52,6 @@ class S3Service:
             logging.error(f"Failed to download {object_name} from bucket {self.bucket_name}.")
             raise
 
-    @staticmethod
     def delete_file(self, object_name):
         try:
             self.s3_client.delete_object(Bucket=self.bucket_name, Key=object_name)
@@ -63,7 +61,6 @@ class S3Service:
             logging.error(f"Failed to delete {object_name} from bucket {self.bucket_name}.")
             raise
 
-    @staticmethod
     def list_articles(self):
         try:
             logging.info(f"Listing articles in bucket {self.bucket_name}.")
@@ -73,3 +70,11 @@ class S3Service:
         except:
             logging.error(f"Failed to list articles in bucket {self.bucket_name}.")
             raise
+
+#testing the S3Service class
+# s3 = S3Service()
+# with open("test.txt", "w") as f:
+#     f.write("This is a test file.")
+# s3.upload_file("test.txt", "PMCID123456")
+# s3.download_file("PMCID123456", "test_downloaded.txt")
+# s3.delete_file("PMCID123456")
