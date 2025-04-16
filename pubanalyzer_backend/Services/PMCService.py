@@ -38,4 +38,5 @@ class PMCService:
             logging.ERROR()(f"Error fetching PMC articles: {response.status_code}")
             raise Exception(f"Error fetching PMC articles: {response.status_code}")
 
-    fetch_pmc_article("PMC123467")
+##testing the PMCService class
+##fetch_pmc_article("PMC123467")
