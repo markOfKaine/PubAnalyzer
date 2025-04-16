@@ -15,10 +15,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from docs.views import test_api
+from django.urls import path, include
+from django.http import JsonResponse
+
+def home(request):
+    return JsonResponse({"message": "Welcome to the PubAnalyzer API"})
 
 urlpatterns = [
+    path('', home),  # Root URL returns simple message
     path('admin/', admin.site.urls),
-    path('api/test/', test_api)
+    path('api/', include('docs.urls')),  # Include /api/ prefix
 ]
