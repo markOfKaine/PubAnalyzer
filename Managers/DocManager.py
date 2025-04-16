@@ -2,7 +2,6 @@ from Services import S3Service as s3
 
 class DocManager:
     def __init__(self):    
-        self.s3Service = s3.S3Service()
         self.documents = {}
 
     def add_document(self, doc_id, content):
