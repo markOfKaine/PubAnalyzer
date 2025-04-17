@@ -4,22 +4,22 @@
 
 ---
 
-## 🚀 Features
+##  Features
 
 ### 🔍 User Features
 
-- ✅ Create Account / Login system  
-- 📄 Upload PDFs or fetch documents using a PMC ID  
-- ✏️ Highlight and manually annotate text  
-- 🤖 AI-powered help: summaries, explanations, etc
-- 💾 Save and revisit documents and annotations  
-- 🔗 Share annotated documents with others   
+- Create Account / Login system  
+- Upload PDFs or fetch documents using a PMC ID  
+- Highlight and manually annotate text  
+- AI-powered help: summaries, explanations, etc
+- Save and revisit documents and annotations  
+- Share annotated documents with others   
 
 ### 🛠️ Admin Features
 
-- 👤 Manage user accounts and moderate flagged content  
-- 📊 View system metrics (uploads, active users, top papers)  
-- 🔁 Retrain or update AI models via backend interface  
+- Manage user accounts and moderate flagged content  
+- View system metrics (uploads, active users, top papers)  
+- Retrain or update AI models via backend interface  
 
 ---
 
