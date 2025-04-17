@@ -1,6 +1,7 @@
 import { Roboto } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -14,15 +15,20 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${roboto.variable}`}>
-        <div className="bg-primary-bg min-h-screen font-roboto">
-          <NavBar />
-          {/* Main page elements are the 'children' */}
-          <div className="px-4">
-            {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="bg-background min-h-screen font-roboto">
+            <NavBar />
+            {/* Main page elements are the 'children' */}
+            <div className="px-4">{children}</div>
           </div>
-        </div>
+        </ThemeProvider>
       </body>
     </html>
   );
