@@ -78,7 +78,7 @@ function NavBar() {
   // Nav Routes (Desktop) displayed in the navigation bar - left side
   const mainRoutes = [
     {
-      href: "/",
+      href: "/viewer",
       label: "Home",
     },
     {
