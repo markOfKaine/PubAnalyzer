@@ -10,7 +10,7 @@ function PANavLink({ icon, text, path }) {
     <Link
       href={path}
       className={`flex items-center space-x-1 px-3 py-1 rounded-md 
-        ${isActive ? "active-link bg-primary-dark" : "hover:bg-primary-light"}`}
+        ${isActive ? "active-link bg-accent" : "hover:bg-primary-light"}`}
     >
       {icon}
       <span>{text}</span>

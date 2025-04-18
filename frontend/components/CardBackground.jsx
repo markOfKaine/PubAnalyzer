@@ -1,9 +1,15 @@
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card"
 
 function CardBackground({ children }) {
   return (
-    <div className="bg-secondary rounded-lg shadow-md p-6">
+    <Card className="border-none bg-card rounded-lg shadow-lg p-6">
+      <CardContent>
       {children}
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
