@@ -1,5 +1,5 @@
 import requests
-from Managers.DocManager import DocManager as docManager
+#from Managers.DocManager import DocManager as docManager
 import S3Service as s3
 import logging
 
@@ -28,15 +28,15 @@ class PMCService:
 
             logging.info(f"PMC article {pmcid} fetched successfully.")
 
-            docManager.add_document(pmcid, response.text)
+            # docManager.add_document(pmcid, response.text)
             logging.info(f"Document {pmcid} added to DocManager.")
 
             self.s3Service.upload_file(f"{pmcid}.xml", f"{pmcid}")
             logging.info(f"Document {pmcid} uploaded to S3 bucket.")
             
         else:
-            logging.ERROR()(f"Error fetching PMC articles: {response.status_code}")
+            logging.ERROR(f"Error fetching PMC articles: {response.status_code}")
             raise Exception(f"Error fetching PMC articles: {response.status_code}")
 
 ##testing the PMCService class
-##fetch_pmc_article("PMC123467")
+# PMCService.fetch_pmc_article("PMC123467")
