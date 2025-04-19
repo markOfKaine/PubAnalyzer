@@ -1,4 +1,4 @@
-from Services import S3Service as s3
+from pubanalyzer_backend.s3Integration import S3Service as s3
 
 class DocManager:
     def __init__(self):    

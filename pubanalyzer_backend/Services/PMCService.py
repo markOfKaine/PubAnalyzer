@@ -1,6 +1,6 @@
 import requests
 #from Managers.DocManager import DocManager as docManager
-import S3Service as s3
+import pubanalyzer_backend.s3Integration.S3Service as s3
 import logging
 
 class PMCService:

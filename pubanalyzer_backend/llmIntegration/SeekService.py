@@ -1,6 +1,6 @@
 ##Logic for LLMService
 from openai import OpenAI
-import S3Service
+from s3Integration.S3Service import S3Service
 import os
 from dotenv import load_dotenv
 import logging
@@ -18,14 +18,14 @@ class SeekService:
 
         load_dotenv()
         self.client = OpenAI(api_key=os.getenv('SEEK_API_KEY'), base_url="https://api.deepseek.com/v1")
-        self.s3 = S3Service.S3Service()
+        self.s3 = S3Service()
 
     def generateResponse(self, prompt, max_tokens=150):
         try:
             logging.info(f"LLM. Generating response. Max tokens: {max_tokens}")
             response = self.client.chat.completions.create(
                 model="deepseek-chat",
-                messages=[{"role": "user", "content": prompt}],
+                messages=[{"role": "user", "content": "Can you briefly summarize the contents stated within this section. " + prompt}],
                 max_tokens=max_tokens
             )
             return response.choices[0].message.content
