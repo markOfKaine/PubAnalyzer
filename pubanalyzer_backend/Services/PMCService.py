@@ -120,4 +120,4 @@ class PMCService:
                 self.logger.debug(f"Deleted local PDF {pdf_path}")
 
 # test 
-# download_extract_and_upload("PMC1234567") <-- not a real PMCID 
+# download_extract_and_upload("PMC10579494") <-- not a real PMCID 
