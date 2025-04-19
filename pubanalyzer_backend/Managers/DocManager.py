@@ -1,19 +1,21 @@
-from Services import S3Service as s3
+from Services.S3Service import S3Service
 
 class DocManager:
     def __init__(self):    
         self.documents = {}
+        self.s3Service = S3Service()
 
-    def add_document(self, doc_id, content):
-        if doc_id is None | doc_id.isInstance(str) == False | content is None | content.isInstance(str) == False:
-            raise ValueError("Document ID and content cannot be None or a non-string.")
+    def add_document(self, doc_id, file_path):
+        if doc_id is None or not isinstance(doc_id, str) or file_path is None:
+            raise ValueError("Document ID cannot be None and must be a string. File path cannot be None.")
 
-        elif doc_id in self.documents:
+        all_docs = self.list_documents()
+        if doc_id in all_docs:
             raise ValueError(f"Document with ID {doc_id} already exists.")
-        
-        else:
-            self.s3Service.upload_file(doc_id, content)
-            self.documents[doc_id] = content
+
+        self.s3Service.upload_file(file_path, doc_id)
+        self.documents[doc_id] = file_path
+        return True
 
     def get_document(self, doc_id):
         return self.s3Service.download_file(doc_id)
