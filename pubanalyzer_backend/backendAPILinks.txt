@@ -1,0 +1,22 @@
+/api/
+    users/ --> --> 
+    users/int/ --> --> 
+
+/s3/
+    list/ --> no input --> list articles in the s3 bucket, throws error if connection error
+
+    upload/ --> JSON "file_name" --> uploads object name to database as the filename
+        ex: {"file_name" : "PMCID123456",}
+
+    download/ --> JSON "file_name" --> retrieves file_name from s3 bucket and downloads related content
+        ex: {"file_name" : "PMC1234567"}
+
+    delete/ --> JSON "file_name" & "admin" --> allows admins to remove files from s3 bucket
+        ex:{ "file_name" : "PMCID1234", "admin" : "True"} 
+
+/llm/
+    query --> Json "prompt" --> get deepseek to summarize a section
+        ex: {"prompt" : "Whos the best marvel character out of the x-men" }
+
+/pmc/
+    TODO
