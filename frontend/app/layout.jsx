@@ -24,9 +24,8 @@ export default function RootLayout({ children }) {
           disableTransitionOnChange
         >
           <div className="bg-background min-h-screen font-roboto">
-            <NavBar />
             {/* Main page elements are the 'children' */}
-            <div className="px-4">{children}</div>
+            {children}
           </div>
         </ThemeProvider>
       </body>
