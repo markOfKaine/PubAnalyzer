@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { BotMessageSquare } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { NotebookPen } from 'lucide-react';
 
 
-interface TipProps {
+interface AiTipProps {
   onConfirm: (comment: { title: string, text: string; emoji: string }) => void;
   onOpen: () => void;
 }
 
-function CustomTip({ onConfirm, onOpen }: TipProps) {
+function AiTip({ onConfirm, onOpen }: AiTipProps) {
   const [text, setText] = useState("");
   const [title, setTitle] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -26,10 +26,10 @@ function CustomTip({ onConfirm, onOpen }: TipProps) {
       <Button 
       variant="default" 
       size="sm"
-      className="flex aspect-square size-8 items-center justify-center bg-primary text-secondary-foreground"
+      className="flex aspect-square size-8 items-center justify-center bg-primary text-background"
       onClick={() => setIsEditing(true)}
     >
-      <NotebookPen />
+      <BotMessageSquare />
     </Button>
     );
   }
@@ -98,4 +98,4 @@ function CustomTip({ onConfirm, onOpen }: TipProps) {
   );
 };
 
-export default CustomTip; 
+export default AiTip; 

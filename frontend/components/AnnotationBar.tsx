@@ -20,22 +20,20 @@ const updateHash = (highlight: IHighlight) => {
   window.location.hash = `highlight-${id}`;
 };
 
-function Sidebar({ highlights, resetHighlights }: SideBarProps) {
+function AnnotationBar({ highlights, resetHighlights }: SideBarProps) {
   return (
-    <div className="bg-sidebar border-sidebar-border h-full flex flex-col p-4 overflow-hidden">
-      {/* TODO: TW - Update with documents name */}
-      <h2 className="mb-4 text-xl font-bold">DOCUMENT NAME</h2>
-      <div className="flex-1 overflow-y-auto">
-        <ul className="p-0 list-none space-y-2">
+    <div className="bg-sidebar border-sidebar-border h-full w-full flex flex-col p-2 overflow-hidden">
+      <div className="flex-1 overflow-y-auto w-full">
+        <ul className="p-0 list-none space-y-2 w-full">
           {highlights.map((highlight, index) => (
             <li
               key={index}
-              className="p-3 cursor-pointer transition-colors duration-150 ease-in-out rounded-md hover:bg-slate-100"
+              className="p-3 cursor-pointer transition-colors duration-150 ease-in-out rounded-md hover:bg-slate-100 w-full"
               onClick={() => {
                 updateHash(highlight);
               }}
             >
-              <Card className="">
+              <Card className="w-full">
                 <CardHeader className="">
                   <CardTitle className="text-sm font-bold">
                     {highlight.comment.title || "Untitled"}
@@ -45,15 +43,15 @@ function Sidebar({ highlights, resetHighlights }: SideBarProps) {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex items-center">
-                  <div>
+                  <div className="w-full">
                     {highlight.content.text ? (
                       <blockquote className="mt-2 pl-2 border-l-2 border-gray-300 text-sm">
                         {`${highlight.content.text.slice(0, 90).trim()}…`}
                       </blockquote>
                     ) : null}
                     {highlight.content.image ? (
-                      <div className="highlight__image mt-0.5">
-                        <img src={highlight.content.image} alt={"Screenshot"} />
+                      <div className="highlight__image mt-0.5 w-full">
+                        <img src={highlight.content.image} alt={"Screenshot"} className="max-w-full" />
                       </div>
                     ) : null}
                   </div>
@@ -66,7 +64,7 @@ function Sidebar({ highlights, resetHighlights }: SideBarProps) {
           ))}
         </ul>
       </div>
-      <div className="pt-4 border-t mt-4">
+      <div className="pt-4 border-t mt-4 w-full">
         <Button
           onClick={resetHighlights}
           className="w-full"
@@ -81,4 +79,4 @@ function Sidebar({ highlights, resetHighlights }: SideBarProps) {
   );
 }
 
-export default Sidebar;
+export default AnnotationBar;
