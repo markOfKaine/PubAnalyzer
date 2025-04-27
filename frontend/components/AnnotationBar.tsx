@@ -10,17 +10,19 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 
-interface SideBarProps {
-  highlights: Array<IHighlight>;
-  resetHighlights: () => void;
-}
+import { usePDFContext } from "@/contexts/PDFContext";
 
 const updateHash = (highlight: IHighlight) => {
   const id = highlight.id;
   window.location.hash = `highlight-${id}`;
 };
 
-function AnnotationBar({ highlights, resetHighlights }: SideBarProps) {
+function AnnotationBar() {
+  const {
+    highlights,
+    resetHighlights,
+  } = usePDFContext();
+
   return (
     <div className="bg-sidebar border-sidebar-border h-full w-full flex flex-col p-2 overflow-hidden">
       <div className="flex-1 overflow-y-auto w-full">
