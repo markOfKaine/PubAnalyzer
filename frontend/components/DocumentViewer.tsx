@@ -9,6 +9,7 @@ import { usePDFContext } from "@/contexts/PDFContext";
 import { AreaHighlight } from "react-pdf-highlighter";
 
 import CustomTip from "@/components/CustomTip";
+import AiTip from "@/components/AiTip";
 
 const HighlightPopup = ({
   comment,
@@ -66,7 +67,7 @@ function DocumentViewer() {
                           hideTipAndSelection();
                         }}
                       />
-                      {/* <AiTip
+                      <AiTip
                           onOpen={transformSelection}
                           onConfirm={(comment) => {
                             addHighlight({
@@ -80,7 +81,7 @@ function DocumentViewer() {
                             });
                             hideTipAndSelection();
                           }}
-                        /> */}
+                        />
                     </div>
                   );
                 }}
