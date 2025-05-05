@@ -18,7 +18,7 @@ export default async function Layout({ children }) {
       {/* Main page elements are the 'children' */}
       <SidebarProvider defaultOpen={defaultOpen}
             style={{
-                  "--sidebar-width": "33.33vw",
+                  "--sidebar-width": "40vw",
                 }}
       >
         <div className="flex flex-1 flex-col gap-4 p-4">

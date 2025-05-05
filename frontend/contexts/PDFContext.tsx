@@ -1,18 +1,39 @@
 import { createContext, useContext, useState, useRef, useCallback, useEffect } from 'react';
 import type {
+  Comment,
   Content,
   IHighlight,
   NewHighlight,
   ScaledPosition
 } from "react-pdf-highlighter";
 
-const PDFContext = createContext({
+const PDFContext = createContext<{
+  url: string;
+  setUrl: (url: string) => void;
+  highlights: Array<PubIHighlight>;
+  setHighlights: (highlights: Array<PubIHighlight>) => void;
+  selectedHighlight: PubIHighlight | null;
+  highlightTapped: (highlight: PubIHighlight) => void;
+  resetHighlights: () => void;
+  addHighlight: (highlight: PubNewHighlight) => void;
+  updateHighlight: (
+    highlightId: string,
+    position: Partial<ScaledPosition>,
+    content: Partial<Content>
+  ) => void;
+  getHighlightById: (id: string) => PubIHighlight | undefined;
+  resetHash: () => void;
+  scrollToHighlightFromHash: () => void;
+  scrollViewerRef: (scrollTo: (highlight: PubIHighlight) => void) => void;
+}>({
   url: "",
   setUrl: (url: string) => {},
-  highlights: [],
-  setHighlights: (highlights: Array<IHighlight>) => {},
+  highlights: [] as Array<PubIHighlight>,
+  setHighlights: (highlights: Array<PubIHighlight>) => {},
+  selectedHighlight: null as PubIHighlight | null,
+  highlightTapped: (highlight: PubIHighlight) => {},
   resetHighlights: () => {},
-  addHighlight: (highlight: NewHighlight) => {},
+  addHighlight: (highlight: PubNewHighlight) => {},
   updateHighlight: (
     highlightId: string,
     position: Partial<ScaledPosition>,
@@ -21,7 +42,7 @@ const PDFContext = createContext({
   getHighlightById: (id: string) => undefined,
   resetHash: () => {},
   scrollToHighlightFromHash: () => {},
-  scrollViewerRef: (scrollTo: (highlight: IHighlight) => void) => {},
+  scrollViewerRef: (scrollTo: (highlight: PubIHighlight) => void) => {},
 });
 
 export const usePDFContext= () => useContext(PDFContext)
@@ -41,11 +62,26 @@ const resetHash = () => {
   }
 };
 
+export interface PubComment {
+  title: string;
+  text: string;
+  emoji: string;
+}
+
+export interface PubNewHighlight extends NewHighlight { 
+  comment: PubComment;
+}
+
+export interface PubIHighlight extends IHighlight { 
+  comment: PubComment;
+}
+
 export const PDFProvider = ({ children, initialUrl = "https://arxiv.org/pdf/1708.08021" }) => {
   const [url, setUrl] = useState(initialUrl);
-  const [highlights, setHighlights] = useState<Array<IHighlight>>([]);
+  const [highlights, setHighlights] = useState<Array<PubIHighlight>>([]);
+  const [selectedHighlight, setSelectedHighlight] = useState<PubIHighlight>(null);
 
-  const scrollViewerTo = useRef((highlight: IHighlight) => {});
+  const scrollViewerTo = useRef((highlight: PubIHighlight) => {});
 
   const getHighlightById = (id: string) => {
     return highlights.find((highlight) => highlight.id === id);
@@ -70,7 +106,7 @@ export const PDFProvider = ({ children, initialUrl = "https://arxiv.org/pdf/1708
     };
   }, [scrollToHighlightFromHash]);
 
-  const addHighlight = (highlight: NewHighlight) => {
+  const addHighlight = (highlight: PubNewHighlight) => {
     console.log("Saving highlight", highlight);
     setHighlights((prevHighlights) => [
       { ...highlight, id: getNextId() },
@@ -108,11 +144,21 @@ export const PDFProvider = ({ children, initialUrl = "https://arxiv.org/pdf/1708
     setHighlights([]);
   };
 
+  const highlightTapped = (highlight: PubIHighlight) => {
+    if (highlight) {
+      setSelectedHighlight(highlight);
+    } else {
+      setSelectedHighlight(null);
+    }
+  }
+
   const contextValue = {
     url,
     setUrl,
     highlights,
     setHighlights,
+    selectedHighlight,
+    highlightTapped,
     resetHighlights,
     addHighlight,
     updateHighlight,

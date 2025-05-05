@@ -1,7 +1,8 @@
 "use client";
-import AnnotationBar from "@/components/AnnotationBar";
+
 import AppSidebar from "@/components/app-side-bar";
 import DocumentViewer from "@/components/DocumentViewer";
+import PDFSiderBar from "@/components/PDFSiderBar";
 import {
   SidebarInset,
   Sidebar,
@@ -9,6 +10,8 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import { PDFProvider } from "@/contexts/PDFContext";
+
+import PDFSiderBarHeader from "@/components/PDFSideBarHeader";
 
 
 function DocumentViewerPage({ pdfUrl = "https://arxiv.org/pdf/1708.08021" }) {
@@ -22,19 +25,10 @@ function DocumentViewerPage({ pdfUrl = "https://arxiv.org/pdf/1708.08021" }) {
           >
             <AppSidebar />
             <Sidebar collapsible="none" className="w-full h-full">
-              <SidebarHeader className="gap-3.5 border-b p-4">
-                <div className="flex w-full items-center justify-between">
-                  <div className="text-base font-medium text-foreground">
-                    {/* TODO: TW - Update with documents name */}
-                    Document Name Here...
-                  </div>
-                </div>
-                {/* TODO: TW - Can add searchinf of annotations here */}
-                {/* <SidebarInput className="" placeholder="Type to search..." /> */}
-              </SidebarHeader>
+              <PDFSiderBarHeader className="gap-3.5 border-b p-4"/>
               <SidebarContent className="flex-1">
                 <div className="h-full w-full">
-                  <AnnotationBar />
+                  <PDFSiderBar />
                 </div>
               </SidebarContent>
             </Sidebar>
