@@ -5,10 +5,11 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NotebookPen } from 'lucide-react';
+import { PubComment } from '@/contexts/PDFContext';
 
 
 interface TipProps {
-  onConfirm: (comment: { title: string, text: string; emoji: string }) => void;
+  onConfirm: (comment: PubComment) => void;
   onOpen: () => void;
 }
 

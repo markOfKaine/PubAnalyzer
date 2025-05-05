@@ -10,6 +10,8 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 
+import AnnotationCard from "@/components/AnnotationCard";
+
 import { usePDFContext } from "@/contexts/PDFContext";
 
 const updateHash = (highlight: IHighlight) => {
@@ -20,6 +22,7 @@ const updateHash = (highlight: IHighlight) => {
 function AnnotationBar() {
   const {
     highlights,
+    highlightTapped,
     resetHighlights,
   } = usePDFContext();
 
@@ -30,38 +33,12 @@ function AnnotationBar() {
           {highlights.map((highlight, index) => (
             <li
               key={index}
-              className="p-3 cursor-pointer transition-colors duration-150 ease-in-out rounded-md hover:bg-slate-100 w-full"
+              className="p-2 cursor-pointer transition-colors duration-150 ease-in-out rounded-lg hover:bg-accent w-full"
               onClick={() => {
                 updateHash(highlight);
               }}
             >
-              <Card className="w-full">
-                <CardHeader className="">
-                  <CardTitle className="text-sm font-bold">
-                    {highlight.comment.title || "Untitled"}
-                  </CardTitle>
-                  <CardDescription className="text-sm text-muted-foreground">
-                    {highlight.comment.text}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex items-center">
-                  <div className="w-full">
-                    {highlight.content.text ? (
-                      <blockquote className="mt-2 pl-2 border-l-2 border-gray-300 text-sm">
-                        {`${highlight.content.text.slice(0, 90).trim()}…`}
-                      </blockquote>
-                    ) : null}
-                    {highlight.content.image ? (
-                      <div className="highlight__image mt-0.5 w-full">
-                        <img src={highlight.content.image} alt={"Screenshot"} className="max-w-full" />
-                      </div>
-                    ) : null}
-                  </div>
-                </CardContent>
-                <CardFooter className="highlight__location text-xs text-muted-foreground mt-2">
-                  Page {highlight.position.pageNumber}
-                </CardFooter>
-              </Card>
+              <AnnotationCard highlight={highlight} />
             </li>
           ))}
         </ul>
