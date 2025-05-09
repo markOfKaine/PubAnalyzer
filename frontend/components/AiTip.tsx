@@ -5,6 +5,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  ArrowLeft
+} from "lucide-react";
 
 
 interface AiTipProps {
@@ -20,6 +23,11 @@ function AiTip({ onConfirm, onOpen }: AiTipProps) {
   useEffect(() => {
     onOpen();
   }, [onOpen]);
+
+  function handleClick(e) {
+    e.preventDefault();
+    
+  }
   
   if (!isEditing) {
     return (
@@ -37,39 +45,17 @@ function AiTip({ onConfirm, onOpen }: AiTipProps) {
   return (
     <Card className="w-[350px] shadow-md">
       <CardHeader className="">
-        <CardTitle className="">New Note</CardTitle>
+        <div className="flex items-center justify-between mb-2">
+          <CardTitle className="">Ask AI</CardTitle>
+          <Button variant="outline" size="icon" onClick={handleClick}><ArrowLeft size={12}/></Button>
+        </div>
       </CardHeader>
       <CardContent className="">
-        <form>
-          <div className="grid w-full items-center gap-4">
-          <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="title" className="text-sm">
-                Title:
-              </Label>
-              <Input
-                id="title"
-                type="text"
-                placeholder="Title here..."
-                className="w-full"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="notes" className="text-sm">
-                Notes:
-              </Label>
-              <Textarea
-                id="notes"
-                placeholder="Notes here..."
-                className="w-full"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                autoFocus
-              />
-            </div>
-          </div>
-        </form>
+        <li className='flex flex-col gap-2'>
+          <Button key="exPrompt1" variant="secondary">Prompt #1</Button>
+          <Button key="exPrompt2" variant="secondary">Prompt #2</Button>
+          <Button key="exPrompt3" variant="secondary">Prompt #3</Button>
+        </li>
       </CardContent>
       <CardFooter className="flex justify-between">
         <Button

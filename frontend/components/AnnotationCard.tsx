@@ -23,31 +23,29 @@ import {
 import { Button } from "@/components/ui/button";
 import { GiParrotHead } from "react-icons/gi";
 
-function AnnotationCard({ highlight }: { highlight: PubIHighlight }) {
-  const { highlightTapped } = usePDFContext();
+function AnnotationCard({ highlightId }) {
+  const { highlights, highlightTapped } = usePDFContext();
+  const highlight = highlights.find(h => h.id === highlightId)
   const [expanded, setExpanded] = useState(false);
-
-  function handleClick(e) {
-    e.preventDefault();
-    
-  }
 
   function expandCard(e) {
     e.preventDefault();
     setExpanded(!expanded);
+    highlightTapped(highlight);
   }
 
   function editBtnTapped(e) {
     e.preventDefault();
+    highlightTapped(highlight, false, true);
   }
   function aiBtnTapped(e) {
     e.preventDefault();
-    highlightTapped(highlight);
+    highlightTapped(highlight, true, false);
   }
 
   return (
     <Card className="w-full">
-      <CardHeader className="border-b" onClick={expandCard}>
+      <CardHeader className="border-b select-none" onClick={expandCard}>
         <CardTitle className="text-sm font-bold">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
@@ -118,10 +116,10 @@ function AnnotationCard({ highlight }: { highlight: PubIHighlight }) {
       {expanded && (
         <CardFooter className="flex items-center">
           <div className="w-full grid grid-cols-2 gap-3">
-            <Button variant="secondary" onClick={editBtnTapped}>
+            <Button variant="default" onClick={editBtnTapped}>
               <Pencil size={16} /> Edit Note
             </Button>
-            <Button onClick={aiBtnTapped}>
+            <Button variant="default" onClick={aiBtnTapped}>
               <GiParrotHead size={16} /> Ask AI
             </Button>
           </div>

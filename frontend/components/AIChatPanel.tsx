@@ -1,18 +1,10 @@
-import type {
-    Content,
-    IHighlight,
-    NewHighlight,
-    ScaledPosition
-  } from "react-pdf-highlighter";
 import { ChatMessageList } from "./ui/chat/chat-message-list";
 import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "./ui/chat/chat-bubble";
 import { PubIHighlight } from "@/contexts/PDFContext";
-import AnnotationCard from "./AnnotationCard";
-
 
 
 function AIChatPanel({highlight}: { highlight: PubIHighlight }) {
-
+    console.log("TW - highlight", highlight.id)
     return (
       <div>
         <ChatMessageList>
