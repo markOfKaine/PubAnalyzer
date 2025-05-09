@@ -3,7 +3,11 @@ import { usePDFContext } from "@/contexts/PDFContext";
 import AnnoCardCompact from "@/components/AnnoCardCompact";
 
 function PDFSiderBarHeader({ className }: { className?: string }) {
-  const { highlights, selectedHighlight } = usePDFContext();
+  const { 
+    highlights, 
+    selectedHighlight, 
+    showAIPanel, 
+    showEditNote} = usePDFContext();
 
   return (
     <SidebarHeader className={className}>
@@ -11,7 +15,7 @@ function PDFSiderBarHeader({ className }: { className?: string }) {
         <div className="w-full text-base font-medium text-foreground">
           {/* TODO: TW - Update with documents name */}
 
-          {selectedHighlight ? (
+          {selectedHighlight && (showAIPanel || showEditNote) ? (
             <AnnoCardCompact highlight={selectedHighlight} />
           ) : (
             <>
