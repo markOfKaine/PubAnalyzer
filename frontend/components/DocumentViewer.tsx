@@ -7,9 +7,10 @@ import {
 } from "react-pdf-highlighter";
 import { usePDFContext } from "@/contexts/PDFContext";
 import { AreaHighlight } from "react-pdf-highlighter";
+import { useState } from "react";
+import { NewNoteCardProps } from "@/components/PDFNewNoteCard";
+import PDFNewNoteCard from "@/components/PDFNewNoteCard";
 
-import CustomTip from "@/components/CustomTip";
-import AiTip from "@/components/AiTip";
 
 const HighlightPopup = ({
   comment,
@@ -23,6 +24,14 @@ const HighlightPopup = ({
   ) : null;
 
 function DocumentViewer() {
+
+  const [newSelection, setNewSelection] = useState<NewNoteCardProps | null>(null);
+  const [selectionCardOpen, setSelectionCardOpen] = useState(false);
+  const [selectionHelpers, setSelectionHelpers] = useState({
+    hideTipAndSelection: () => {},
+    transformSelection: () => {}
+  });
+  
   const {
     url,
     highlights,
@@ -32,12 +41,23 @@ function DocumentViewer() {
     scrollViewerRef,
   } = usePDFContext();
 
+  function newSelectionStarted(e) {
+    e.preventDefault();
+    closeSelectionPanel();
+  }
+
+  function closeSelectionPanel() {
+    selectionHelpers.hideTipAndSelection();
+    setSelectionCardOpen(false);
+    setNewSelection(null);
+  }
+
   return (
     <div className="flex w-full flex-1 flex-col">
       <div className="h-full relative overflow-auto">
         <PdfLoader url={url} beforeLoad={<div>Loading PDF...</div>}>
           {(pdfDocument) => (
-            <div className="absolute inset-0">
+            <div className="absolute inset-0" onClick={newSelectionStarted}>
               <PdfHighlighter
                 pdfDocument={pdfDocument}
                 enableAreaSelection={(event) => event.altKey}
@@ -49,41 +69,14 @@ function DocumentViewer() {
                   hideTipAndSelection,
                   transformSelection
                 ) => {
-                  return (
-                    <div className="flex flex-row gap-2">
-                      <CustomTip
-                        onOpen={transformSelection}
-                        onConfirm={(comment) => {
-                          console.log("Comment", comment);
-                          addHighlight({
-                            content,
-                            position,
-                            comment: {
-                              title: comment.title || "No Title",
-                              text: comment.text || "No comment",
-                              emoji: "💬",
-                            },
-                          });
-                          hideTipAndSelection();
-                        }}
-                      />
-                      <AiTip
-                          onOpen={transformSelection}
-                          onConfirm={(comment) => {
-                            addHighlight({
-                              content,
-                              position,
-                              comment: {
-                                title: comment.title || "No Title",
-                                text: comment.text || "No comment",
-                                emoji: "💬",
-                              },
-                            });
-                            hideTipAndSelection();
-                          }}
-                        />
-                    </div>
-                  );
+                  console.log("TW - onSelectionFinished");
+                  setNewSelection({ position, content });
+                  setSelectionHelpers({
+                    hideTipAndSelection,
+                    transformSelection,
+                  });
+                  setSelectionCardOpen(true);
+                  return null;
                 }}
                 highlightTransform={(
                   highlight,
@@ -94,6 +87,7 @@ function DocumentViewer() {
                   screenshot,
                   isScrolledTo
                 ) => {
+                  console.log("TW - highlightTransform");
                   const isTextHighlight = !highlight.content?.image;
                   const component = isTextHighlight ? (
                     <Highlight
@@ -125,6 +119,7 @@ function DocumentViewer() {
                       onMouseOut={hideTip}
                       key={index}
                     >
+                      {console.log("TW - setTip")}
                       {component}
                     </Popup>
                   );
@@ -134,6 +129,17 @@ function DocumentViewer() {
             </div>
           )}
         </PdfLoader>
+        {selectionCardOpen && newSelection && (
+          <div className="absolute bottom-0 left-0 right-0 bg-transparent z-10">
+            <PDFNewNoteCard
+              position={newSelection?.position}
+              content={newSelection?.content}
+              transformSelection={selectionHelpers.transformSelection}
+              hideTipAndSelection={selectionHelpers.hideTipAndSelection}
+              onClose={closeSelectionPanel}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

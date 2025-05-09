@@ -12,7 +12,8 @@ import { Button } from "@/components/ui/button";
 import {
   BookOpen,
   Calendar,
-  CircleX
+  CircleX,
+  ArrowLeft
 } from "lucide-react";
 
 function AnnoCardCompact({ highlight }: { highlight: PubIHighlight }) {
@@ -33,11 +34,11 @@ function AnnoCardCompact({ highlight }: { highlight: PubIHighlight }) {
             {highlight.comment.title || "Untitled"}
           </span>
         </div>
-        <Button variant="destructive" onClick={handleClick}><CircleX size={12}/></Button>
+        <Button variant="outline" size="icon" onClick={handleClick}><ArrowLeft size={12}/></Button>
       </div>
     </CardTitle>
     <CardDescription className="text-xs text-muted-foreground">
-      <div className=" flex items-center gap-2">
+      <div className="flex items-center gap-2">
         <span>Type: {highlight.content.text ? "Text" : "Image"}</span>
         <span>•</span>
         <span className="flex items-center gap-1">

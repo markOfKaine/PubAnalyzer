@@ -47,7 +47,7 @@ function AnnotationCard({ highlight }: { highlight: PubIHighlight }) {
 
   return (
     <Card className="w-full">
-      <CardHeader className="border-b" onClick={expandCard}>
+      <CardHeader className="border-b select-none" onClick={expandCard}>
         <CardTitle className="text-sm font-bold">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">

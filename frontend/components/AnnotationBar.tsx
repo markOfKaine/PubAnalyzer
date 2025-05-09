@@ -1,14 +1,6 @@
 import type { IHighlight } from "react-pdf-highlighter";
 import { Button } from "@/components/ui/button";
 import "react-pdf-highlighter/dist/style.css";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
 
 import AnnotationCard from "@/components/AnnotationCard";
 
