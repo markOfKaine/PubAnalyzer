@@ -1,5 +1,5 @@
 "use client";
-
+import ModeToggle from "@/components/ModeToggle";
 import * as React from "react";
 import { Home, Search, Trash2, File  } from "lucide-react";
 import { GiParrotHead } from "react-icons/gi";
@@ -126,6 +126,7 @@ function AppSidebar() {
         </SidebarContent>
         <SidebarFooter className="">
           <NavUser user={data.user} />
+          <ModeToggle />
         </SidebarFooter>
       </Sidebar>
     </>
