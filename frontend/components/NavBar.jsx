@@ -100,7 +100,7 @@ function NavBar() {
           label: "Sign In",
         },
         {
-          href: "/",
+          href: "/signup",
           label: "Sign Up",
         },
       ]
@@ -186,7 +186,7 @@ function NavBar() {
                     <span>Sign In</span>
                   </Button>
                 </Link>
-                <Link href="/signin">
+                <Link href="/signup">
                   <Button
                     className="flex items-center gap-2 bg-primary text-background"
                   >

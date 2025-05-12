@@ -1,10 +1,10 @@
 "use client";
 import ModeToggle from "@/components/ModeToggle";
 import * as React from "react";
-import { Home, Search, Trash2, File  } from "lucide-react";
+import { Home, Search, Files  } from "lucide-react";
 import { GiParrotHead } from "react-icons/gi";
 import { useRouter } from 'next/navigation'
-import { NavUser } from "@/components/NavSidebar";
+import { NavUser } from "@/components/NavUser";
 import {
   Sidebar,
   SidebarContent,
@@ -22,8 +22,8 @@ import {
 // This is sample data
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: "Tim",
+    email: "tw@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
@@ -34,21 +34,15 @@ const data = {
       isActive: false,
     },
     {
+      title: "Articles",
+      url: "/articles",
+      icon: Files,
+      isActive: false,
+    },
+    {
       title: "Analyze",
       url: "/analyze",
       icon: Search,
-      isActive: false,
-    },
-    {
-      title: "Files",
-      url: "#",
-      icon: File,
-      isActive: false,
-    },
-    {
-      title: "Trash",
-      url: "#",
-      icon: Trash2,
       isActive: false,
     },
   ],
@@ -78,7 +72,7 @@ function AppSidebar() {
                 className="md:h-8 md:p-0"
               >
                 <SidebarTrigger
-                  className="flex aspect-square size-8 items-center justify-center bg-sidebar-primary"
+                  className="flex aspect-square size-8 items-center justify-center bg-sidebar-accent"
                   onClick={() => console.log("Sidebar triggered")}
                 />
               </SidebarMenuButton>
@@ -88,7 +82,7 @@ function AppSidebar() {
                 tooltip=""
                 size="md"
                 asChild
-                className="flex aspect-square size-8 items-center justify-center bg-green-500"
+                className="flex aspect-square size-8 items-center justify-center bg-sidebar-primary"
               >
                 <GiParrotHead />
               </SidebarMenuButton>
@@ -103,6 +97,7 @@ function AppSidebar() {
                   <SidebarMenuItem className="" key={item.title}>
                     <SidebarMenuButton
                       tooltip={{
+                        className: "text-sidebar-foreground",
                         children: item.title,
                         hidden: false,
                       }}
