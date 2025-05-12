@@ -100,7 +100,7 @@ function LoginCard() {
           <p className="mt-8 text-sm text-center text-card-foreground">
             <span>Don't have an account?</span>{" "}
             <Link
-              href={"/signin"}
+              href={"/signup"}
               className="font-medium text-primary hover:text-primary/80"
             >
               Sign up
