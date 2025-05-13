@@ -29,7 +29,7 @@
 
 - **React**
 - **Next.js**
-- Responsive UI (desktop & mobile)
+- **Tailwind CSS**
 
 ### Backend
 
@@ -41,13 +41,15 @@
 
 ## ✅ Requirements
 
-### Functional
-
-- Upload or fetch papers
+### Functional - For MVP
+- User Account Sign Up / Login
+- Fetch PubMed Articles
 - Annotate and save documents
 - Generate AI summaries and questions
-- Document sharing
-- Admin dashboard and AI model management
+
+### Functional - Nice to haves:
+- Annotated Document Export and Sharing
+- Admin dashboard with AI model management
 
 ### Non-Functional
 
@@ -62,11 +64,10 @@
 
 - **Usability**:  
   - Beginner-friendly UI  
-  - Fully mobile-compatible  
 
 - **Scalability**:  
   - Supports 20+ concurrent users  
-  - Each user can store at least 10 documents  
+  - Each user can store at least 10 documents
 
 ---
 
