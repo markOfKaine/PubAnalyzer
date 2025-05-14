@@ -71,7 +71,16 @@
 
 ---
 
-## 👥 Team
+## 📈 Diagrams
+
+### Sequence - Functional Requirments
+* [Login](./diagrams/sequence/loginsequence.md)
+* [Sign Up](./diagrams/sequence/registersequence.md)
+* [Fetch PubMed Articles](./diagrams/sequence/pdfRetrievalSequence.md)
+* [Annotate and save documents](./diagrams/sequence/annotationSequence.md)
+* [Generate AI summaries and questions](./diagrams/sequence/aiSummarySequence.md)
+  
+## 👥 Team 8
 
 - Edmond Abraham  
 - Bryan Valadez  
