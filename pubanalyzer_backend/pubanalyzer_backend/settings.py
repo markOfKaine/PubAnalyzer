@@ -24,13 +24,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-***REMOVED***os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
+SESSION_COOKIE_SECURE = True # Ensures the session cookie is only sent over HTTPS
 
 # Application definition
 
@@ -62,6 +63,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
 
+CORS_ALLOW_CREDENTIALS = False # Allows cookies to be included in CORS requests
+                               # TURN THIS TO TRUE IN PRODUCTION
 
 ROOT_URLCONF = 'pubanalyzer_backend.urls'
 
