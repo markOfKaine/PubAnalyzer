@@ -9,24 +9,27 @@ from rest_framework import status
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
+class OriginCheck:
+    allowed_origin = "http://localhost:3000" #change to frontend URL in production
+
+    def dispatch(self, request, *args, **kwargs):
+        # origin = request.headers.get("Origin") #Uncomment in production
+        # if origin != self.allowed_origin:
+        #     return Response({"detail": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
+        return super().dispatch(request, *args, **kwargs)
+
 @method_decorator(csrf_exempt, name='dispatch')
-class RegisterView(generics.CreateAPIView):
+class RegisterView(OriginCheck, generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-    # def create(self, request, *args, **kwargs):   Uncomment and replace local host with deployed IP when deploying
-    #     origin = request.headers.get("Origin")
-    #     if origin != "http://localhost:3000":
-    #         return Response({"detail": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
-    #     return super().create(request, *args, **kwargs)
     
+    def perform_create(self, serializer):
+        user = serializer.save()
+        login(self.request, user)  # Auto-login after successful registration
+
 @method_decorator(csrf_exempt, name='dispatch')
-class SessionLoginView(APIView):
+class SessionLoginView(OriginCheck, APIView):
     def post(self, request):
-        # origin = request.headers.get("Origin")
-        # if origin != "http://localhost:3000":
-        #         return Response({"detail": "Forbidden"}, status=403)
-        
         username = request.data.get('username')
         password = request.data.get('password')
 
@@ -52,11 +55,7 @@ class SessionLoginView(APIView):
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 @method_decorator(csrf_exempt, name='dispatch')
-class LogoutView(APIView):
+class LogoutView(OriginCheck, APIView):
     def post(self, request):
-        # origin = request.headers.get("Origin")
-        # if origin != "http://localhost:3000":
-        #         return Response({"detail": "Forbidden"}, status=403)
-        
         logout(request)
         return Response({"message": "Logged out successfully"})
