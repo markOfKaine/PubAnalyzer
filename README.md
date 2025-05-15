@@ -73,6 +73,10 @@
 
 ## 📈 Diagrams
 
+### Architecture -
+* [PubAnalyzer Simple Architecture](./diagrams/architecture/architectureDiagram.md)
+
+
 ### Sequence - Functional Requirments
 * [Login](./diagrams/sequence/loginsequence.md)
 * [Sign Up](./diagrams/sequence/registersequence.md)
