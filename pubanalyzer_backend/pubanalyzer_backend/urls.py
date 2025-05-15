@@ -26,6 +26,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('docs.urls')),  # Include /api/ prefix
     path('s3/', include('s3Integration.urls')),  # Include /s3/ prefix for s3Integration
-    # path('pmc/', include('pmcIntegration.urls')),  # Include /pmc/ prefix for pmcIntegration
+    path('pmc/', include('pmcIntegration.urls')),  # Include /pmc/ prefix for pmcIntegration
     path('llm/', include('llmIntegration.urls')),  # Include /llm/ prefix for llmIntegration
 ]
