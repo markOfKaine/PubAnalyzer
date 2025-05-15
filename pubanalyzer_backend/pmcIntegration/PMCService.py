@@ -104,7 +104,14 @@ class PMCService:
             s3_key = f"{pmcid}{self.PDF_EXTENSION}"
             self.s3.upload_file(str(pdf_path), s3_key)
             self.logger.info(f"Uploaded PDF to S3 as {s3_key}")
-            return True
+
+            # generate pre-signed URL
+            url = self.s3.generate_presigned_url(s3_key)
+            if url:
+                self.logger.info(f"Generated pre-signed URL: {url}")
+                return url
+            else:
+                return False 
 
         except Exception as e:
             self.logger.error(f"Error processing {pmcid}: {e}")

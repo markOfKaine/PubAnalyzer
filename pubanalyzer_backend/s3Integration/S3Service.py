@@ -1,4 +1,4 @@
-import boto3
+import boto3 # type: ignore
 import logging
 from dotenv import load_dotenv
 import os
@@ -69,6 +69,19 @@ class S3Service:
         except:
             logging.error(f"Failed to list articles in bucket {self.bucket_name}.")
             raise
+        
+    def generate_presigned_url(self, key, expiration=3600):
+        try:
+            url = self.s3_client.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': self.bucket_name, 'Key': key},
+                ExpiresIn=expiration
+            )
+            logging.info(f"Generated pre-signed URL for {key}")
+            return url
+        except Exception as e:
+            logging.error(f"Failed to generate pre-signed URL for {key}: {e}")
+            return None
 
 #testing the S3Service class
 # s3 = S3Service()
