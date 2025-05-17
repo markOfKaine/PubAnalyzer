@@ -25,7 +25,8 @@ class PMCService:
 
     def __init__(
         self,
-        temp_local_dir: str = "temp",
+        temp_local_dir: str = "Studies/temp",
+        pdf_output_dir: str = "Studies/pdfs",
         api_url: str = None,
         timeout: int = 30,
         log_level: int = logging.INFO
@@ -35,13 +36,12 @@ class PMCService:
         self.api_url = api_url or self.DEFAULT_OA_API_URL
         self.timeout = timeout
 
-        self.studies_root = Path(__file__).resolve().parent.parent / "Studies"
-        self.studies_root.mkdir(parents=True, exist_ok=True)
+        frontend_root = Path(__file__).resolve().parent.parent.parent / "frontend"
 
-        self.temp_dir = self.studies_root / temp_local_dir
+        self.temp_dir = frontend_root / temp_local_dir
         self.temp_dir.mkdir(parents=True, exist_ok=True)
 
-        self.pdfs_dir = self.studies_root / "PDFs"
+        self.pdfs_dir = frontend_root / pdf_output_dir
         self.pdfs_dir.mkdir(parents=True, exist_ok=True)
 
     def fetch_tarball_url(self, pmcid: str) -> str:
@@ -99,4 +99,3 @@ class PMCService:
             if 'tar_path' in locals() and tar_path.exists():
                 tar_path.unlink()
                 self.logger.debug(f"Deleted local tarball {tar_path}")
-
