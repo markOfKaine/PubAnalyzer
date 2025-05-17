@@ -36,12 +36,12 @@ class PMCService:
         self.api_url = api_url or self.DEFAULT_OA_API_URL
         self.timeout = timeout
 
-        frontend_root = Path(__file__).resolve().parent.parent.parent / "frontend"
+        backend_root = Path(__file__).resolve().parent.parent  
 
-        self.temp_dir = frontend_root / temp_local_dir
+        self.temp_dir = backend_root / temp_local_dir
         self.temp_dir.mkdir(parents=True, exist_ok=True)
 
-        self.pdfs_dir = frontend_root / pdf_output_dir
+        self.pdfs_dir = backend_root / pdf_output_dir
         self.pdfs_dir.mkdir(parents=True, exist_ok=True)
 
     def fetch_tarball_url(self, pmcid: str) -> str:

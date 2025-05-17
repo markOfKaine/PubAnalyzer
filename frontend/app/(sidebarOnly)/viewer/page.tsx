@@ -14,8 +14,8 @@ import { PDFProvider } from "@/contexts/PDFContext";
 import PDFSiderBarHeader from "@/components/PDFSideBarHeader";
 
 
-function DocumentViewerPage({ pdfUrl = "https://arxiv.org/pdf/1708.08021" }) {
-  return (
+function DocumentViewerPage({ pdfUrl = "http://localhost:8000/pmc/display/PMC10579494.pdf" }) {
+  return (                                                               //^ you can try with any valid PMCID
     <PDFProvider initialUrl={pdfUrl}>
       <div className="flex h-full">
         <div className="h-full">
