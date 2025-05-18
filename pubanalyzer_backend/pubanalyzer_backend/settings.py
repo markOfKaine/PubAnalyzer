@@ -45,6 +45,10 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'docs',
+    's3Integration',
+    'pmcIntegration',
+    'llmIntegration',
+    'rdsIntegration',
 ]
 
 MIDDLEWARE = [
