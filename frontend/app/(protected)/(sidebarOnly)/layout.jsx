@@ -1,9 +1,8 @@
-import "../globals.css";
+import "@/app/globals.css";
 import { cookies } from "next/headers";
 import {
     SidebarProvider,
 } from "@/components/ui/sidebar"
-import ProtectedRoute from "@/contexts/ProtectedRoute";
 
 export const metadata = {
   title: "PubAnalyzer",
@@ -15,8 +14,7 @@ export default async function Layout({ children }) {
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
 
   return (
-    <ProtectedRoute>
-      <div className="bg-background min-h-screen font-roboto">
+    <div className="bg-background min-h-screen font-roboto">
         {/* Main page elements are the 'children' */}
         <SidebarProvider
           defaultOpen={defaultOpen}
@@ -27,6 +25,5 @@ export default async function Layout({ children }) {
           <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
         </SidebarProvider>
       </div>
-    </ProtectedRoute>
   );
 }
