@@ -1,8 +1,8 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, User } from "lucide-react";
-import { GiParrotHead } from "react-icons/gi";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -124,10 +124,13 @@ function NavBar() {
           {/* Logo and Site Name - Desktop: Left; Mobile: Centered */}
           <div className="col-span-1 md:col-span-2 flex justify-center md:justify-start">
             <Link href="/" className="flex items-center space-x-3">
-              <GiParrotHead size={40} className="text-primary" />
-              <span className="text-3xl font-semibold">
-                PubAnalyzer
-              </span>
+              <Image
+                src="/pubby.png"
+                alt="Pubby Logo"
+                width={40}
+                height={40}
+              />
+              <span className="text-2xl font-semibold">PubAnalyzer</span>
             </Link>
           </div>
 
