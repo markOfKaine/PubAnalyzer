@@ -1,13 +1,6 @@
-import { Roboto } from "next/font/google";
-import "../globals.css";
 import NavBar from "@/components/NavBar";
 import VisitorRoute from "@/contexts/VisitorRoute";
 import ModeToggle from "@/components/ModeToggle";
-
-const roboto = Roboto({
-  subsets: ["latin"],
-  variable: "--font-roboto",
-});
 
 export const metadata = {
   title: "PubAnalyzer",

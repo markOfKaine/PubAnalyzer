@@ -17,11 +17,6 @@ export const PubMedProvider = ({ children }) => {
   const contextValue = {
     user,
     loading,
-    register,
-    checkAuth,
-    logout,
-    login,
-    isAuthenticated: !!user,
   };
 
   return (
