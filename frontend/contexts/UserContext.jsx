@@ -38,7 +38,6 @@ export const UserProvider = ({ children }) => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Registration successful:", data);
         const user = data.user;
         setUser({
           id: user.id,
@@ -49,9 +48,29 @@ export const UserProvider = ({ children }) => {
       }
 
       const errorData = await response.json();
-      return { success: false, error: errorData };
+      
+      // Handle any specific error messages from django
+      const fieldError = {};
+      const unknownError = {};
+
+      if (errorData.email) {
+        fieldError.email = "This email is already in use.";
+      }
+
+      if (errorData.first_name) {
+        fieldError.firstName = "First name should only contain letters.";
+      }
+
+      if (errorData.last_name) {
+        fieldError.lastName = "Last name should only contain letters.";
+      }
+
+      if (Object.keys(fieldError).length === 0) {
+        unknownError.message = "An unknown error occurred during registration.";
+      }
+
+      return { success: false, fieldError: fieldError, unknownError: unknownError };
     } catch (error) {
-      console.error("Registration failed:", error);
       return { success: false, error: { message: "Network error occurred" } };
     }
   };

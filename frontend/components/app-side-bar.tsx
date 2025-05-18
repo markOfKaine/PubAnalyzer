@@ -1,11 +1,10 @@
 "use client";
 import ModeToggle from "@/components/ModeToggle";
 import { useState } from "react";
-import { Home, Search, Files  } from "lucide-react";
+import { Home, Search, Files } from "lucide-react";
 import { GiParrotHead } from "react-icons/gi";
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from "next/navigation";
 import { NavUser } from "@/components/NavUser";
-import { useUserContext } from "@/contexts/UserContext";
 import {
   Sidebar,
   SidebarContent,
@@ -28,12 +27,12 @@ const data = {
       icon: Home,
       isActive: false,
     },
-    // {
-    //   title: "Articles",
-    //   url: "/dashboard",
-    //   icon: Files,
-    //   isActive: false,
-    // },
+    {
+      title: "EX-Viewer",
+      url: "/viewer",
+      icon: Files,
+      isActive: false,
+    },
     {
       title: "Discover",
       url: "/discover",
@@ -43,11 +42,15 @@ const data = {
   ],
 };
 
+const hasSideBarTrigger = ["/viewer"];
+
 function AppSidebar() {
   const [activeItem, setActiveItem] = useState(data.navMain[0]);
   const { setOpen } = useSidebar();
   const router = useRouter();
-  const { user } = useUserContext();
+  const pathname = usePathname();
+
+  const showSideBarTrigger = hasSideBarTrigger.includes(pathname);
 
   return (
     <>
@@ -60,19 +63,6 @@ function AppSidebar() {
       >
         <SidebarHeader className="">
           <SidebarMenu className="border-b border-sidebar-border pb-4 space-y-2">
-            <SidebarMenuItem className="">
-              <SidebarMenuButton
-                tooltip=""
-                size="lg"
-                asChild
-                className="md:h-8 md:p-0"
-              >
-                <SidebarTrigger
-                  className="flex aspect-square size-8 items-center justify-center bg-sidebar-accent"
-                  onClick={() => console.log("Sidebar triggered")}
-                />
-              </SidebarMenuButton>
-            </SidebarMenuItem>
             <SidebarMenuItem className="">
               <SidebarMenuButton
                 tooltip=""
@@ -98,12 +88,11 @@ function AppSidebar() {
                         hidden: false,
                       }}
                       onClick={() => {
-                        setActiveItem(item);
                         router.push(item.url);
                         // TW - Can make certain menu items open the bar if needed
                         // setOpen(true);
                       }}
-                      isActive={activeItem?.title === item.title}
+                      isActive={pathname === item.url}
                       className="px-2.5 md:px-2"
                     >
                       <item.icon />
@@ -116,8 +105,23 @@ function AppSidebar() {
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter className="">
+          {showSideBarTrigger && (
+            <SidebarMenuItem className="">
+              <SidebarMenuButton
+                tooltip=""
+                size="lg"
+                asChild
+                className="md:h-8 md:p-0"
+              >
+                <SidebarTrigger
+                  className="flex aspect-square size-8 items-center justify-center bg-sidebar-accent"
+                  onClick={() => console.log("Sidebar triggered")}
+                />
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           <NavUser />
-          <ModeToggle />
+          
         </SidebarFooter>
       </Sidebar>
     </>
