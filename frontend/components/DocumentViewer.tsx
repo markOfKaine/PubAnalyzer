@@ -24,7 +24,6 @@ const HighlightPopup = ({
   ) : null;
 
 function DocumentViewer() {
-
   const [newSelection, setNewSelection] = useState<NewNoteCardProps | null>(null);
   const [selectionCardOpen, setSelectionCardOpen] = useState(false);
   const [selectionHelpers, setSelectionHelpers] = useState({

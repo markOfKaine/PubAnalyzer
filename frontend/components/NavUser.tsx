@@ -10,6 +10,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSubTrigger,
+  DropdownMenuSub,
+  DropdownMenuPortal,
+  DropdownMenuSubContent
 } from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
@@ -18,10 +22,14 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useUserContext } from "@/contexts/UserContext";
+import * as React from "react";
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { user, logout } = useUserContext();
+  const { setTheme } = useTheme();
 
   const userName = useMemo(() => {
     if (!user) return "User";
@@ -39,6 +47,13 @@ export function NavUser() {
     const firstInitial = user.first_name.charAt(0).toUpperCase();
     return firstInitial;
   }, [user]);
+
+  const handleThemeChange = (theme) => (e) => {
+    // Stop propagation to prevent event bubbling issues
+    e.stopPropagation();
+    e.preventDefault();
+    setTheme(theme);
+  };
 
   return (
     <SidebarMenu className="">
@@ -88,6 +103,40 @@ export function NavUser() {
                 <Settings />
                 Settings
               </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuGroup>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="gap-2" inset={false}>
+                  <Sun className="h-[1.0rem] w-[1.0rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                  <Moon className="absolute h-[1.0rem] w-[1.0rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                  <span>Toggle Theme</span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent className="" align="end">
+                    <DropdownMenuItem
+                      className=""
+                      inset={false}
+                      onSelect={handleThemeChange("light")}
+                    >
+                      Light
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className=""
+                      inset={false}
+                      onSelect={handleThemeChange("dark")}
+                    >
+                      Dark
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className=""
+                      inset={false}
+                      onSelect={handleThemeChange("system")}
+                    >
+                      System
+                    </DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
             </DropdownMenuGroup>
             <DropdownMenuSeparator className="" />
             <DropdownMenuItem

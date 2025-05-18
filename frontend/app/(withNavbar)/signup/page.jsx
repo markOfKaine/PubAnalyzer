@@ -1,10 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useUserContext } from "@/contexts/UserContext";
-
 import {
   Card,
   CardContent,
@@ -36,8 +35,11 @@ function SignUpPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [redirecting, setRedirecting] = useState(false);
-
   const { register } = useUserContext();
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const form = useForm({
     resolver: zodResolver(UserSchema),
@@ -55,8 +57,6 @@ function SignUpPage() {
     setError(null);
     setIsSubmitting(true);
 
-    console.log("Form data submitted:", data);
-
     try {
       const registerResponse = await register(data);
 
@@ -64,10 +64,21 @@ function SignUpPage() {
         setSubmitted(true);
         setRedirecting(true);
       } else {
-        setError(
-          registerResponse.error?.message ||
-            "An error occurred during signup. Please try again."
-        );
+        // Handle specific error messages from the backend
+        if (registerResponse.fieldError) {
+          const fieldErrors = registerResponse.fieldError;
+          Object.entries(fieldErrors).forEach(([field, message]) => {
+            form.setError(field, {
+              type: "manual",
+              message: message,
+            });
+          });
+        }
+
+        if (registerResponse.unknownError) {
+          setError(registerResponse.unknownError);
+        }
+
         setIsSubmitting(false);
       }
     } catch (error) {
@@ -91,10 +102,6 @@ function SignUpPage() {
       if (redirectTimer) clearTimeout(redirectTimer);
     };
   }, [redirecting, error, router]);
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
 
   if (submitted) {
     return (
