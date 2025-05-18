@@ -22,10 +22,33 @@ class OriginCheck:
 class RegisterView(OriginCheck, generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    
-    def perform_create(self, serializer):
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         user = serializer.save()
         login(self.request, user)  # Auto-login after successful registration
+        
+        return Response({
+            'message': 'Registration successful',
+            'user': {
+                'id': user.id,
+                'email':user.email,
+                'first_name': user.first_name,
+            }
+        }, status=status.HTTP_201_CREATED)
+    
+@method_decorator(csrf_exempt, name='dispatch')
+class UserAuthView(OriginCheck, APIView):
+    def get(self, request):
+        if request.user.is_authenticated:
+            return Response({
+                'message': 'Authenticated',
+                'id': request.user.id,
+                'email': request.user.email,
+                'first_name': request.user.first_name,
+            })
+        return Response({"detail": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class SessionLoginView(OriginCheck, APIView):
