@@ -1,8 +1,7 @@
 "use client";
-import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, User, UserPlus } from "lucide-react";
+import { Menu, User } from "lucide-react";
 import { GiParrotHead } from "react-icons/gi";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -13,7 +12,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import ModeToggle from "@/components/ModeToggle";
 
 // Navigation link components for mobile and desktop
 const MobileNavLink = ({ href, children }) => {
@@ -72,48 +70,21 @@ const AvatarDropDown = () => {
 };
 
 function NavBar() {
-  // TODO: TW - Update when sign in logic is implemented
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  // Nav Routes (Desktop) displayed in the navigation bar - left side
+  // Nav Routes (Mobile) displayed in the navigation sheet presented by the hamburger menu
   const mainRoutes = [
     {
       href: "/",
       label: "Home",
     },
     {
-      href: "/analyze",
-      label: "Analyze",
+      href: "/signin",
+      label: "Sign In",
     },
     {
-      href: "/viewer",
-      label: "EX-Viewer",
+      href: "/signup",
+      label: "Sign Up",
     },
   ];
-
-  // Nav Routes (Mobile) - varies depending on if signed in or not
-  // TODO: TW - Update Routes once sign in logic is implemented
-  const authRoutes = !isAuthenticated
-    ? [
-        {
-          href: "/signin",
-          label: "Sign In",
-        },
-        {
-          href: "/signup",
-          label: "Sign Up",
-        },
-      ]
-    : [
-        {
-          href: "/",
-          label: "Profile",
-        },
-        {
-          href: "/",
-          label: "Sign Out",
-        },
-      ];
 
   return (
     <nav className="bg-background border-b rounded-b-lg border-border shadow-md sticky top-0 z-50">
@@ -134,10 +105,10 @@ function NavBar() {
               </SheetTrigger>
               <SheetContent
                 side="left"
-                className="border border-sidebar-border bg-sidebar text-sidebar-foreground pt-10 w-[400px] sm:w-[540px] flex flex-col justify-between"
+                className="border border-sidebar-border bg-sidebar text-sidebar-foreground pt-10 flex flex-col justify-between"
               >
                 <ul className="flex flex-col gap-2">
-                  {mainRoutes.concat(authRoutes).map((route) => (
+                  {mainRoutes.map((route) => (
                     <li key={route.href}>
                       <MobileNavLink href={route.href} icon={route.icon}>
                         {route.label}
@@ -146,9 +117,6 @@ function NavBar() {
                   ))}
                 </ul>
                 {/* Toggles Light, Dark, System Mode Theme */}
-                <div className="mt-4 border-t border-sidebar-border p-4 flex justify-end">
-                  <ModeToggle />
-                </div>
               </SheetContent>
             </Sheet>
           </div>
@@ -157,45 +125,39 @@ function NavBar() {
           <div className="col-span-1 md:col-span-2 flex justify-center md:justify-start">
             <Link href="/" className="flex items-center space-x-3">
               <GiParrotHead size={40} className="text-primary" />
-              <span className="text-2xl font-semibold">PubAnalyzer</span>
+              <span className="text-3xl font-semibold">
+                PubAnalyzer
+              </span>
             </Link>
-
-            {/* Left-side Navigation Links (desktop only) */}
-            <ul className="hidden md:flex items-center ml-6 gap-2">
-              {mainRoutes.map((route) => (
-                <li key={route.href}>
-                  <DesktopNavLink href={route.href}>
-                    {route.label}
-                  </DesktopNavLink>
-                </li>
-              ))}
-            </ul>
           </div>
 
           {/* (Desktop) Navigation Links - Right */}
           <div className="flex justify-end">
             {/* TW - remove the ! to see the avatar logo and drop down menu. Make sure to place it back! */}
-            {isAuthenticated ? (
-              <AvatarDropDown />
-            ) : (
-              <div className="hidden md:flex items-center gap-2">
-                <ModeToggle />
-                <Link href="/signin">
-                  <Button variant="ghost" className="flex items-center gap-2">
-                    <User size={18} />
-                    <span>Sign In</span>
-                  </Button>
-                </Link>
-                <Link href="/signup">
-                  <Button
-                    className="flex items-center gap-2 bg-primary text-background"
-                  >
-                    <UserPlus size={18} />
-                    <span>Sign Up</span>
-                  </Button>
-                </Link>
-              </div>
-            )}
+            <div className="hidden md:flex items-center gap-2">
+              {/* TODO: TW - Add a FAQ page...*/}
+              <Link href="/">
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-2 text-lg"
+                >
+                  <span>FAQ</span>
+                </Button>
+              </Link>
+              <Link href="/signin">
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-2 text-lg"
+                >
+                  <span>Sign In</span>
+                </Button>
+              </Link>
+              <Link href="/signup">
+                <Button className="flex items-center gap-2 bg-primary text-lg">
+                  <span>Sign Up</span>
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>

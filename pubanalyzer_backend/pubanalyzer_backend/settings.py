@@ -31,7 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-SESSION_COOKIE_SECURE = True # Ensures the session cookie is only sent over HTTPS
+SESSION_COOKIE_SECURE = False # Ensures the session cookie is only sent over HTTPS
 
 # Application definition
 
@@ -52,7 +52,6 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -63,7 +62,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
 
-CORS_ALLOW_CREDENTIALS = False # Allows cookies to be included in CORS requests
+CORS_ALLOW_CREDENTIALS = True # Allows cookies to be included in CORS requests
                                # TURN THIS TO TRUE IN PRODUCTION
 
 ROOT_URLCONF = 'pubanalyzer_backend.urls'

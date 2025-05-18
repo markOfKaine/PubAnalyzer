@@ -1,8 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useUserContext } from "@/contexts/UserContext";
+
 import {
   Card,
   CardContent,
@@ -27,21 +29,21 @@ import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { UserSchema } from "@/types/UserSchema";
 
-
 function SignUpPage() {
-    const router = useRouter();
-    const [showPassword, setShowPassword] = useState(false);
-    const [submitted, setSubmitted] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [redirecting, setRedirecting] = useState(false);
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+  const [redirecting, setRedirecting] = useState(false);
 
+  const { register } = useUserContext();
 
-  // Initialize react-hook-form
   const form = useForm({
     resolver: zodResolver(UserSchema),
     defaultValues: {
-      fullName: "",
+      firstName: "",
+      lastName: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -49,56 +51,46 @@ function SignUpPage() {
     mode: "onBlur",
   });
 
-    const onSubmit = async (data) => {
+  const onSubmit = async (data) => {
     setError(null);
-    setIsLoading(true);
+    setIsSubmitting(true);
 
-    // Form submission successful
     console.log("Form data submitted:", data);
 
-    // TODO: TW - Replace with actual API call
-    // fetch('/api/signup', {
-    // method: 'POST',
-    // headers: { 'Content-Type': 'application/json' },
-    // body: JSON.stringify(data),
-    // })
-    // .then((response) => response.json())
-    // .then((data) => {
-    //     if (data.success) {
-    //         console.log("Signup successful:", data);
-    //         setSubmitted(true);
-    //         setRedirecting(true);
-    //     } else {
-    //         console.error("Signup error:", data.message);
-    //         setError(data.message);
-    //     }
-    // })
-    // .catch((error) => {
-    //     console.error("Error during signup:", error);
-    //     setError("An error occurred during signup. Please try again.");
-    // })
-    // .finally(() => {
-    //     setIsLoading(false);
-    // });
+    try {
+      const registerResponse = await register(data);
 
-    setSubmitted(true);
-    setRedirecting(true);
-    };
+      if (registerResponse.success) {
+        setSubmitted(true);
+        setRedirecting(true);
+      } else {
+        setError(
+          registerResponse.error?.message ||
+            "An error occurred during signup. Please try again."
+        );
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      console.error("Error during signup:", error);
+      setError("An unknown error occurred during signup. Please try again.");
+      setIsSubmitting(false);
+    }
+  };
 
   // Redirect user after successful signup
-    useEffect(() => {
-      let redirectTimer;
+  useEffect(() => {
+    let redirectTimer;
 
-      if (redirecting && !error) {
-        redirectTimer = setTimeout(() => {
-          router.push("/articles");
-        }, 2000);
-      }
+    if (redirecting && !error) {
+      redirectTimer = setTimeout(() => {
+        router.push("/dashboard");
+      }, 2000);
+    }
 
-      return () => {
-        if (redirectTimer) clearTimeout(redirectTimer);
-      };
-    }, [redirecting, error, router]);
+    return () => {
+      if (redirectTimer) clearTimeout(redirectTimer);
+    };
+  }, [redirecting, error, router]);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -160,12 +152,26 @@ function SignUpPage() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="fullName"
+              name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name</FormLabel>
+                  <FormLabel>First Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} />
+                    <Input placeholder="John" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Doe" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -267,11 +273,12 @@ function SignUpPage() {
 
             <Button
               type="submit"
-              className="w-full px-4 py-2 text-sm font-medium text-background bg-primary
+              disabled={isSubmitting}
+              className="w-full px-4 py-2 text-sm font-medium text-foreground bg-primary
               border border-transparent rounded-md shadow-sm 
               hover:bg-primary/80 focus:outline-none focus:ring-ring focus:ring-offset-2"
             >
-              Create Account
+              {isSubmitting ? "Creating Account..." : "Create Account"}
             </Button>
           </form>
         </Form>

@@ -2,9 +2,8 @@ import "../globals.css";
 import { cookies } from "next/headers";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/app-side-bar";
-import {
-  SidebarInset,
-} from "@/components/ui/sidebar";
+import { SidebarInset } from "@/components/ui/sidebar";
+import ProtectedRoute from "@/contexts/ProtectedRoute";
 
 export const metadata = {
   title: "PubAnalyzer",
@@ -16,17 +15,19 @@ export default async function Layout({ children }) {
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
 
   return (
-    <div className="min-h-screen bg-background font-roboto">
-      <SidebarProvider defaultOpen={defaultOpen}>
-        <div className="flex flex-1 min-h-screen">
-          <AppSidebar />
-          <div className="flex-1 overflow-auto">
-            <SidebarInset className="w-full h-full bg-background">
-              {children}
-            </SidebarInset>
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background font-roboto">
+        <SidebarProvider defaultOpen={defaultOpen}>
+          <div className="flex flex-1 min-h-screen">
+            <AppSidebar />
+            <div className="flex-1 overflow-auto">
+              <SidebarInset className="w-full h-full bg-background">
+                {children}
+              </SidebarInset>
+            </div>
           </div>
-        </div>
-      </SidebarProvider>
-    </div>
+        </SidebarProvider>
+      </div>
+    </ProtectedRoute>
   );
 }

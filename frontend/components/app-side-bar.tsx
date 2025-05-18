@@ -1,10 +1,11 @@
 "use client";
 import ModeToggle from "@/components/ModeToggle";
-import * as React from "react";
+import { useState } from "react";
 import { Home, Search, Files  } from "lucide-react";
 import { GiParrotHead } from "react-icons/gi";
 import { useRouter } from 'next/navigation'
 import { NavUser } from "@/components/NavUser";
+import { useUserContext } from "@/contexts/UserContext";
 import {
   Sidebar,
   SidebarContent,
@@ -19,29 +20,23 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-// This is sample data
 const data = {
-  user: {
-    name: "Tim",
-    email: "tw@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
-      title: "Home",
-      url: "/",
+      title: "Dashboard",
+      url: "/dashboard",
       icon: Home,
       isActive: false,
     },
+    // {
+    //   title: "Articles",
+    //   url: "/dashboard",
+    //   icon: Files,
+    //   isActive: false,
+    // },
     {
-      title: "Articles",
-      url: "/articles",
-      icon: Files,
-      isActive: false,
-    },
-    {
-      title: "Analyze",
-      url: "/analyze",
+      title: "Discover",
+      url: "/discover",
       icon: Search,
       isActive: false,
     },
@@ -49,9 +44,10 @@ const data = {
 };
 
 function AppSidebar() {
-  const [activeItem, setActiveItem] = React.useState(data.navMain[0]);
+  const [activeItem, setActiveItem] = useState(data.navMain[0]);
   const { setOpen } = useSidebar();
   const router = useRouter();
+  const { user } = useUserContext();
 
   return (
     <>
@@ -120,7 +116,7 @@ function AppSidebar() {
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter className="">
-          <NavUser user={data.user} />
+          <NavUser />
           <ModeToggle />
         </SidebarFooter>
       </Sidebar>
