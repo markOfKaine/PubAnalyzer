@@ -40,8 +40,9 @@ export const PubMedProvider = ({ children }) => {
   };
 
   const searchPMC = async (searchTerm, maxResults = 20) => {
-    const searchUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pmc&term=${encodeURIComponent(searchTerm)}&retmax=${maxResults}&retmode=json`;
-  
+    const filteredTerm = `${searchTerm} AND open access[filter]`;
+    const searchUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pmc&term=${encodeURIComponent(filteredTerm)}&retmax=${maxResults}&retmode=json`;
+   
     console.log("Searching PMC with:", searchUrl);
   
     try {
