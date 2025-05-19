@@ -8,13 +8,19 @@ export const usePMContext = () => useContext(PubMedContext);
 export const PubMedProvider = ({ children }) => {
   
   const [pdfURL, setPDFURL] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // TODO: TW - Replace with actual API endpoint
   // sample pmc id: 10579494
 
   const fetchPDFToDisplay = async (pmcid) => {
+    setLoading(true);
+
     try {
-      const response = await fetch(`http://127.0.0.1:8000/pmc/display/PMC${pmcid}.pdf`, {
+      const encodedPmcid = encodeURIComponent(pmcid);
+      console.log("Fetching PDF for PMCID:", encodedPmcid);
+      console.log("Fetching PDF from:", `http://127.0.0.1:8000/pmc/display/${encodedPmcid}.pdf`);
+      const response = await fetch(`http://127.0.0.1:8000/pmc/display/${encodedPmcid}.pdf`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -22,8 +28,10 @@ export const PubMedProvider = ({ children }) => {
           credentials: "include",
         }
       );
-
+      console.log("Response status:", response.status);
+      
       if (response.ok) {
+        console.log("PDF fetched successfully");
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
         setPDFURL(url);
@@ -31,6 +39,7 @@ export const PubMedProvider = ({ children }) => {
         return { success: true };
       }
 
+      console.error("Error fetching PDF:", response.status, response.statusText);
       const errorData = await response.json();
       return { success: false, error: errorData };
     } catch (error) {
