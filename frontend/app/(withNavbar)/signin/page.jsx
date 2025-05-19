@@ -180,7 +180,8 @@ function SignInPage() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full px-4 py-2 text-sm font-medium text-foreground bg-primary border border-transparent rounded-md shadow-sm hover:bg-primary/80 focus:outline-none focus:ring-ring focus:ring-offset-2"
+                  variant="default"
+                  className="w-full px-4 py-2"
                 >
                   {isSubmitting ? "Signing in..." : "Sign in"}
                 </Button>
