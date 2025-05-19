@@ -33,7 +33,6 @@ export function NavUser() {
 
   const userName = useMemo(() => {
     if (!user) return "User";
-    console.log(user);
     return user.first_name;
   }, [user]);
 

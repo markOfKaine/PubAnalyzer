@@ -17,6 +17,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { usePMContext } from "@/contexts/PubMedContext";
 
 const data = {
   navMain: [
@@ -48,8 +49,9 @@ function AppSidebar() {
   const { setOpen } = useSidebar();
   const router = useRouter();
   const pathname = usePathname();
+  const { pdfURL } = usePMContext();
 
-  const showSideBarTrigger = hasSideBarTrigger.includes(pathname);
+  const showSideBarTrigger = hasSideBarTrigger.includes(pathname) && pdfURL;
 
   return (
     <>
