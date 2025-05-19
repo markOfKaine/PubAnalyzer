@@ -78,12 +78,11 @@ function SignUpPage() {
         if (registerResponse.unknownError) {
           setError(registerResponse.unknownError);
         }
-
-        setIsSubmitting(false);
       }
     } catch (error) {
       console.error("Error during signup:", error);
       setError("An unknown error occurred during signup. Please try again.");
+    } finally {
       setIsSubmitting(false);
     }
   };
