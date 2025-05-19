@@ -1,8 +1,7 @@
 "use client";
-import ModeToggle from "@/components/ModeToggle";
 import { useState } from "react";
 import { Home, Search, Files } from "lucide-react";
-import { GiParrotHead } from "react-icons/gi";
+import { Separator } from "@/components/ui/separator";
 import { useRouter, usePathname } from "next/navigation";
 import { NavUser } from "@/components/NavUser";
 import {
@@ -61,20 +60,6 @@ function AppSidebar() {
         collapsible="none"
         className="!w-[calc(var(--sidebar-width-icon)_+_1px)] border-r"
       >
-        <SidebarHeader className="">
-          <SidebarMenu className="border-b border-sidebar-border pb-4 space-y-2">
-            <SidebarMenuItem className="">
-              <SidebarMenuButton
-                tooltip=""
-                size="md"
-                asChild
-                className="flex aspect-square size-8 items-center justify-center bg-sidebar-primary"
-              >
-                <GiParrotHead />
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarHeader>
         <SidebarContent className="">
           <SidebarGroup className="">
             <SidebarGroupContent className="px-1.5 md:px-0">
@@ -102,6 +87,9 @@ function AppSidebar() {
                 ))}
               </SidebarMenu>
             </SidebarGroupContent>
+            <SidebarGroupContent className="px-1.5 md:px-0">
+              <Separator className="my-4"/>
+            </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter className="">
@@ -121,7 +109,6 @@ function AppSidebar() {
             </SidebarMenuItem>
           )}
           <NavUser />
-          
         </SidebarFooter>
       </Sidebar>
     </>

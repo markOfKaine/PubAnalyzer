@@ -2,16 +2,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, User } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // Navigation link components for mobile and desktop
 const MobileNavLink = ({ href, children }) => {
@@ -37,35 +30,6 @@ const DesktopNavLink = ({ href, children }) => {
         <span>{children}</span>
       </Button>
     </Link>
-  );
-};
-
-const AvatarDropDown = () => {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Avatar>
-          {/* TODO: TW - Replace once user logic is implemented */}
-          <AvatarImage src="/" alt="User" />
-          <AvatarFallback>
-            <User />
-          </AvatarFallback>
-        </Avatar>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem asChild>
-          <Link href="/" className="cursor-pointer">
-            Profile
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          {/* TODO: TW - Replace with proper path once sign out logic is handled. */}
-          <Link href="/sigin" className="cursor-pointer">
-            Sign Out
-          </Link>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
   );
 };
 
