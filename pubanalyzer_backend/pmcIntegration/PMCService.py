@@ -10,7 +10,6 @@ def setup_logger(name: str, level=logging.INFO):
         level=level,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=[
-            logging.FileHandler("project.log"),
             logging.StreamHandler()
         ]
     )
@@ -38,7 +37,7 @@ class PMCService:
 
         backend_root = Path(__file__).resolve().parent.parent  
 
-        self.temp_dir = backend_root / temp_local_dir
+        self.temp_dir = Path("/tmp") / temp_local_dir
         self.temp_dir.mkdir(parents=True, exist_ok=True)
 
         self.pdfs_dir = backend_root / pdf_output_dir
