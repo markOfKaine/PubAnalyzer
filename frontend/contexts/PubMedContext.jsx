@@ -18,8 +18,6 @@ export const PubMedProvider = ({ children }) => {
 
     try {
       const encodedPmcid = encodeURIComponent(pmcid);
-      console.log("Fetching PDF for PMCID:", encodedPmcid);
-      console.log("Fetching PDF from:", `http://127.0.0.1:8000/pmc/display/${encodedPmcid}.pdf`);
       const response = await fetch(`http://127.0.0.1:8000/pmc/display/${encodedPmcid}.pdf`, {
           method: "GET",
           headers: {

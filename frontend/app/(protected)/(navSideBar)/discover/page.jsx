@@ -2,15 +2,7 @@
 
 import { useState } from "react";
 import { 
-  BookOpen, 
-  FileText, 
-  Calendar, 
-  Users, 
-  BookMarked, 
-  BookOpenCheck,
-  ExternalLink,
   Search,
-  Plus,
   AlertCircle,
   Loader2
 } from 'lucide-react';
@@ -22,21 +14,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-  Card, 
-  CardContent, 
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
-import { 
-  Tooltip, 
-  TooltipContent, 
-  TooltipProvider, 
-  TooltipTrigger 
-} from '@/components/ui/tooltip';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import EmptyStateHintCard from "@/components/EmptyStateHintCard";
 import ArticleCard from "@/components/ArticleCard";
 
 
@@ -153,7 +131,7 @@ function Analyze() {
           {loading ? (
             <EmptyStateLoading />
           ) : articles.length === 0 ? (
-            <EmptyStateHintCard />
+            <EmptyStateHintCard hintMessage='Try searching for a different medical topic, author, or keyword. You can use terms like "diabetes treatment", "oncology", or specific researcher names.' />
           ) : (
             <div className="grid grid-cols-1 gap-4">
               {articles.map((article, index) => (
@@ -182,18 +160,3 @@ const EmptyStateLoading = () => {
   );
 }
 
-const EmptyStateHintCard = () => {
-  return (
-        <Card className="border border-dashed">
-      <CardContent className="flex flex-col items-center justify-center py-10">
-        <Search className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
-        <h3 className="text-lg font-medium mb-1">No articles found</h3>
-        <p className="text-muted-foreground text-center max-w-md">
-          Try searching for a different medical topic, author, or keyword.
-          You can use terms like "diabetes treatment", "oncology", or
-          specific researcher names.
-        </p>
-      </CardContent>
-    </Card>
-  );
-}
