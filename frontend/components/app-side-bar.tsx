@@ -28,7 +28,7 @@ const data = {
       isActive: false,
     },
     {
-      title: "EX-Viewer",
+      title: "Viewer",
       url: "/viewer",
       icon: Files,
       isActive: false,
