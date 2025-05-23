@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { GiParrotHead } from "react-icons/gi";
+import Image from "next/image";
 
 function AnnotationCard({ highlightId }) {
   const { highlights, highlightTapped } = usePDFContext();
@@ -120,7 +120,12 @@ function AnnotationCard({ highlightId }) {
               <Pencil size={16} /> Edit Note
             </Button>
             <Button variant="default" onClick={aiBtnTapped}>
-              <GiParrotHead size={16} /> Ask AI
+              <Image
+                src="/pubby.png"
+                alt="Pubby Logo"
+                width={30}
+                height={30}
+              /> Ask AI
             </Button>
           </div>
         </CardFooter>

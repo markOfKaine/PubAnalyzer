@@ -4,12 +4,12 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { GiParrotHead } from "react-icons/gi";
-import { PenLine, Image } from "lucide-react";
+import { PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ButtonGroup from "@/components/ButtonGroup"
 import PDFManualNote from "@/components/PDFManualNote"
 import PDFAINote from "@/components/PDFAINote"
+import Image from "next/image";
 
 export interface NewNoteCardProps {
   position: ScaledPosition;
@@ -91,7 +91,14 @@ function PDFNewNoteCard({
               text: "Note",
             },
             {
-              image: <GiParrotHead size={16} />,
+              image: (
+                <Image
+                  src="/pubby.png"
+                  alt="Pubby Logo"
+                  width={30}
+                  height={30}
+                />
+              ),
               text: "Ask AI",
             },
           ]}
