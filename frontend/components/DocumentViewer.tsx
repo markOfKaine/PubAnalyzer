@@ -8,50 +8,40 @@ import {
 import { usePDFContext } from "@/contexts/PDFContext";
 import { AreaHighlight } from "react-pdf-highlighter";
 import { useState } from "react";
-import { NewNoteCardProps } from "@/components/PDFNewNoteCard";
+import { useLLMContext } from "@/contexts/LLMContext";
 import PDFNewNoteCard from "@/components/PDFNewNoteCard";
 
 
 const HighlightPopup = ({
   comment,
 }: {
-  comment: { title: string; text: string; emoji: string };
+  comment: { text: string; emoji: string };
 }) =>
   comment.text ? (
     <div className="Highlight__popup">
-      {comment.emoji} {comment.title}
+      {comment.emoji} {comment.text.slice(0, 30)}
+      {comment.text.length > 30 ? "..." : ""}
     </div>
   ) : null;
 
 function DocumentViewer() {
-  const [newSelection, setNewSelection] = useState<NewNoteCardProps | null>(null);
-  const [selectionCardOpen, setSelectionCardOpen] = useState(false);
-  const [selectionHelpers, setSelectionHelpers] = useState({
-    hideTipAndSelection: () => {},
-    transformSelection: () => {}
-  });
-
   const [isAreaSelectionInProgress, setIsAreaSelectionInProgress] = useState(false);
+  const { setMessages } = useLLMContext();
   
   const {
     url,
     highlights,
-    addHighlight,
     updateHighlight,
     resetHash,
     scrollViewerRef,
+    setShowAIPanel,
+    setShowEditNote,
   } = usePDFContext();
 
-  function newSelectionStarted(e) {
-    e.preventDefault();
-    closeSelectionPanel();
-  }
-
   function closeSelectionPanel() {
-    console.log("TW - closeSelectionPanel");
-    selectionHelpers.hideTipAndSelection();
-    setSelectionCardOpen(false);
-    setNewSelection(null);
+    setShowAIPanel(false);
+    setShowEditNote(false);
+    setMessages([]);
   }
 
   return (
@@ -63,11 +53,10 @@ function DocumentViewer() {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              
+
               if (!isAreaSelectionInProgress) {
-                newSelectionStarted(e);
+                closeSelectionPanel();
               }
-              
             }}>
               <PdfHighlighter
                 pdfDocument={pdfDocument}
@@ -87,13 +76,15 @@ function DocumentViewer() {
                   hideTipAndSelection,
                   transformSelection
                 ) => {
-                  setNewSelection({ position, content });
-                  setSelectionHelpers({
-                    hideTipAndSelection,
-                    transformSelection,
-                  });
-                  setSelectionCardOpen(true);
-                  return null
+                  return (
+                    <PDFNewNoteCard
+                      position={position}
+                      content={content}
+                      transformSelection={transformSelection}
+                      hideTipAndSelection={hideTipAndSelection}
+                      onClose={closeSelectionPanel}
+                    />
+                  );
                 }}
                 highlightTransform={(
                   highlight,
@@ -149,19 +140,6 @@ function DocumentViewer() {
             </div>
           )}
         </PdfLoader>
-        {selectionCardOpen && newSelection && (
-          <div className="absolute bottom-0 left-0 right-0 bg-transparent z-10" 
-          onClick={(e) => {e.stopPropagation();}}>
-            <>{console.log("TW - PDFNewNoteCard NEW???")}</>
-            <PDFNewNoteCard
-              position={newSelection?.position}
-              content={newSelection?.content}
-              transformSelection={selectionHelpers.transformSelection}
-              hideTipAndSelection={selectionHelpers.hideTipAndSelection}
-              onClose={closeSelectionPanel}
-            />
-          </div>
-        )}
       </div>
     </div>
   );

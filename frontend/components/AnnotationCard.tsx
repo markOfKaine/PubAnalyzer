@@ -6,18 +6,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { usePDFContext, PubIHighlight } from "@/contexts/PDFContext";
+import { usePDFContext } from "@/contexts/PDFContext";
 import { useState } from "react";
 import {
-  MessageSquare,
   Pencil,
-  BookOpen,
-  ArrowLeft,
   Calendar,
-  Share,
-  Bookmark,
   ChevronDown,
   ChevronUp,
+  UserRoundPen 
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -28,16 +24,18 @@ function AnnotationCard({ highlightId }) {
   const highlight = highlights.find(h => h.id === highlightId)
   const [expanded, setExpanded] = useState(false);
 
+  const isAIHighlight = highlight?.chats !== undefined;
+  
   function expandCard(e) {
     e.preventDefault();
     setExpanded(!expanded);
-    highlightTapped(highlight);
   }
 
   function editBtnTapped(e) {
     e.preventDefault();
     highlightTapped(highlight, false, true);
   }
+
   function aiBtnTapped(e) {
     e.preventDefault();
     highlightTapped(highlight, true, false);
@@ -49,19 +47,30 @@ function AnnotationCard({ highlightId }) {
         <CardTitle className="text-sm font-bold">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <BookOpen size={16} className="text-muted-foreground" />
-              <span className="text-sm font-medium">
-                {highlight.comment.title || "Untitled"}
-              </span>
+                <span className="text-sm font-medium">
+                  {highlight.title || "Untitled"}
+                </span>
             </div>
-            <span className="text-xs bg-accent text-muted-foreground px-2 py-1 rounded-full">
-              Page {highlight.position.pageNumber}
-            </span>
+            <div className="flex items-center gap-2">
+              {isAIHighlight ? (
+                <Image
+                  src="/pubby.png"
+                  alt="Pubby Logo"
+                  width={24}
+                  height={24}
+                />
+              ) : (
+                <UserRoundPen size={16} className="text-muted-foreground" />
+              )}
+            </div>
           </div>
         </CardTitle>
         <CardDescription className="text-sm text-muted-foreground">
+          {/* Article Metadata */}
           <div className=" flex items-center gap-2">
-            <span>Type: {highlight.content.text ? "Text" : "Image"}</span>
+            <span>Type: {highlight.content.text ? "Text" : "Area Select"}</span>
+            <span>•</span>
+            <span>Page {highlight.position.pageNumber}</span>
             <span>•</span>
             <span className="flex items-center gap-1">
               <Calendar size={12} />
@@ -77,10 +86,10 @@ function AnnotationCard({ highlightId }) {
       {expanded && (
         <CardContent className="flex items-center">
           <div className="w-full space-y-4">
-            {/* Highlighted text */}
+            {/* Highlighted content */}
             <div className="border-b">
               <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                Highlighted Text
+                Highlight
               </h3>
               <div className="bg-accent/50 p-3 rounded-md border">
                 {highlight.content.text ? (
@@ -101,32 +110,38 @@ function AnnotationCard({ highlightId }) {
             </div>
 
             {/* Notes */}
-            <div className="border-b">
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                Your Notes
-              </h3>
-              <p className="text-sm text-accent-foreground bg-accent/50 p-3 rounded-md border">
-                {highlight.comment.text || "No notes added"}
-              </p>
-            </div>
+            {!isAIHighlight && (
+              <div className="border-b">
+                <h3 className="text-sm font-medium text-muted-foreground mb-2">
+                  Notes
+                </h3>
+                <p className="text-sm text-accent-foreground bg-accent/50 p-3 rounded-md border">
+                  {highlight.comment.text || "No notes added"}
+                </p>
+              </div>
+            )}
           </div>
         </CardContent>
       )}
 
       {expanded && (
         <CardFooter className="flex items-center">
-          <div className="w-full grid grid-cols-2 gap-3">
-            <Button variant="default" onClick={editBtnTapped}>
-              <Pencil size={16} /> Edit Note
-            </Button>
-            <Button variant="default" onClick={aiBtnTapped}>
-              <Image
-                src="/pubby.png"
-                alt="Pubby Logo"
-                width={30}
-                height={30}
-              /> Ask AI
-            </Button>
+          <div className="w-full grid grid-cols-1 gap-3">
+            {isAIHighlight ? (
+              <Button variant="default" onClick={aiBtnTapped}>
+                <Image
+                  src="/pubby.png"
+                  alt="Pubby Logo"
+                  width={30}
+                  height={30}
+                />{" "}
+                Ask Pubby
+              </Button>
+            ) : (
+              <Button variant="default" onClick={editBtnTapped}>
+                <Pencil size={16} /> Edit Note
+              </Button>
+            )}
           </div>
         </CardFooter>
       )}
