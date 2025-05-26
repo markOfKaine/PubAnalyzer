@@ -18,7 +18,6 @@ class OriginCheck:
         #     return Response({"detail": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
         return super().dispatch(request, *args, **kwargs)
 
-@method_decorator(csrf_exempt, name='dispatch')
 class PMCFetchView(APIView):
     def get(self, request, pmcid):
         if not pmcid:
@@ -36,7 +35,6 @@ class PMCFetchView(APIView):
         else:
             return Response({"error": f"Failed to process {pmcid}"}, status=500)
 
-@method_decorator(csrf_exempt, name='dispatch')
 class PMCDisplayView(APIView):
     def get(self, request, filename):
         pmcid = filename.replace(".pdf", "")

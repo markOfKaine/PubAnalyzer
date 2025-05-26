@@ -19,7 +19,6 @@ class OriginCheck:
         #     return Response({"detail": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
         return super().dispatch(request, *args, **kwargs)
 
-@method_decorator(csrf_exempt, name='dispatch')
 class RegisterView(OriginCheck, generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -40,7 +39,6 @@ class RegisterView(OriginCheck, generics.CreateAPIView):
             }
         }, status=status.HTTP_201_CREATED)
     
-@method_decorator(csrf_exempt, name='dispatch')
 class UserAuthView(OriginCheck, APIView):
     def get(self, request):
         if request.user.is_authenticated:
@@ -52,7 +50,6 @@ class UserAuthView(OriginCheck, APIView):
             })
         return Response({"detail": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
 
-@method_decorator(csrf_exempt, name='dispatch')
 class SessionLoginView(OriginCheck, APIView):
     def post(self, request):
         username = request.data.get('username')
@@ -79,13 +76,11 @@ class SessionLoginView(OriginCheck, APIView):
         else:
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
-@method_decorator(csrf_exempt, name='dispatch')
 class LogoutView(OriginCheck, APIView):
     def post(self, request):
         logout(request)
         return Response({"message": "Logged out successfully"})
     
-@method_decorator(csrf_exempt, name='dispatch')
 class AnnotatedStudiesView(OriginCheck, APIView):
     def post(self, request):
         if not request.user.is_authenticated:

@@ -9,7 +9,6 @@ import json
 
     ##TODO SET UP LOGGING
 
-@method_decorator(csrf_exempt, name='dispatch')
 class generateLLMResponse(View):
     def post(self, request):
         try:
