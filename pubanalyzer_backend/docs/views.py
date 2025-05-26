@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from .models import UserStudies
 
 class OriginCheck:
     allowed_origin = "http://localhost:3000" #change to frontend URL in production
@@ -26,8 +27,9 @@ class RegisterView(OriginCheck, generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        login(self.request, user)  # Auto-login after successful registration
+        user = serializer.save() #creates user in auth_user table
+        UserStudies.objects.create(user=user) #creates user in docs_userstudies table
+        login(self.request, user)
         
         return Response({
             'message': 'Registration successful',
