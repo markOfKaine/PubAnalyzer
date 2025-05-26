@@ -43,6 +43,8 @@ export const PubMedProvider = ({ children }) => {
     } catch (error) {
       console.error("Error fetching PDF:", error);
       return { success: false, error: error };
+    } finally {
+      setLoading(false);
     }
   };
 
