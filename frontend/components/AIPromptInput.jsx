@@ -13,6 +13,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useLLMContext } from "@/contexts/LLMContext";
 import { usePDFContext } from "@/contexts/PDFContext";
+import { usePMContext } from "@/contexts/PubMedContext";
+import { constructPrompt } from "@/utilities/constructprompt";
 
 const formSchema = z.object({
   prompt: z.string().min(1, 'Please enter a message'),
@@ -28,6 +30,7 @@ const formSchema = z.object({
 // }
 
 function AIPromptInput() {
+    const { selectedArticle } = usePMContext();
     const { setMessages, fetchLLMTextResponse } = useLLMContext();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -46,6 +49,10 @@ function AIPromptInput() {
   const sendMessageToLLM = async (inputValue) => {
     console.log("Sending message to LLM 1:", inputValue);
     if (!inputValue.trim() || isLoading) return;
+
+    // TODO: Uncomment when token limit is increased to use a better contetual promp
+    // const userQuestion = inputValue.trim();
+    // const prompt = constructPrompt(userQuestion, selectedHighlight, selectedArticle);
 
     const userMessage = {
       id: Date.now().toString(),
@@ -71,9 +78,14 @@ function AIPromptInput() {
     setMessages((prev) => [...prev, loadingMessage]);
 
     try {
-        console.log("Sending message to LLM 2:", userMessage.content);
-        const aiResponse = await fetchLLMTextResponse(userMessage.content);
+        // TODO: pass 'prompt' in here instead of 'userQuestion' when token limit is increased
+        // also remove the below fetch
+        // console.log("Constructed Prompt:", prompt);
+        // const aiResponse = await fetchLLMTextResponse(prompt);
+        
+        const aiResponse = await fetchLLMTextResponse(userMessage.content , selectedHighlight.content.image);
         console.log("AI Response:", aiResponse);
+        
         const aiMessage = {
           ...loadingMessage,
           content: aiResponse.response,

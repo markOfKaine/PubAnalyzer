@@ -6,6 +6,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
 import { usePDFContext } from "@/contexts/PDFContext";
 import { useState } from "react";
 import {
@@ -20,7 +32,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 function AnnotationCard({ highlightId }) {
-  const { highlights, highlightTapped } = usePDFContext();
+  const { highlights, highlightTapped, removeHighlight } = usePDFContext();
   const highlight = highlights.find(h => h.id === highlightId)
   const [expanded, setExpanded] = useState(false);
 
@@ -42,14 +54,16 @@ function AnnotationCard({ highlightId }) {
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader className="border-b select-none" onClick={expandCard}>
+    <Card
+      className={`w-full ${isAIHighlight ? "border-primary" : "border-border"}`}
+    >
+      <CardHeader className="border-b select-n</Card>one" onClick={expandCard}>
         <CardTitle className="text-sm font-bold">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">
-                  {highlight.title || "Untitled"}
-                </span>
+              <span className="text-sm font-medium">
+                {highlight.title || "Untitled"}
+              </span>
             </div>
             <div className="flex items-center gap-2">
               {isAIHighlight ? (
@@ -126,7 +140,7 @@ function AnnotationCard({ highlightId }) {
 
       {expanded && (
         <CardFooter className="flex items-center">
-          <div className="w-full grid grid-cols-1 gap-3">
+          <div className="w-full grid grid-cols-2 gap-3">
             {isAIHighlight ? (
               <Button variant="default" onClick={aiBtnTapped}>
                 <Image
@@ -142,6 +156,35 @@ function AnnotationCard({ highlightId }) {
                 <Pencil size={16} /> Edit Note
               </Button>
             )}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">Remove Highlight</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="">
+                <AlertDialogHeader className="">
+                  <AlertDialogTitle className="">
+                    Are you sure you want to remove this highlight?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="">
+                    This action cannot be undone and will permanently delete this annotation.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="">
+                  <AlertDialogCancel className="">
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    className=""
+                    onClick={() => {
+                      console.log("Removing highlight:", highlightId);
+                      removeHighlight(highlightId);
+                    }}
+                  >
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </CardFooter>
       )}
