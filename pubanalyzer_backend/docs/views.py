@@ -84,3 +84,27 @@ class LogoutView(OriginCheck, APIView):
     def post(self, request):
         logout(request)
         return Response({"message": "Logged out successfully"})
+    
+@method_decorator(csrf_exempt, name='dispatch')
+class AnnotatedStudiesView(OriginCheck, APIView):
+    def post(self, request):
+        if not request.user.is_authenticated:
+            return Response({'error': 'Authentication required'}, status=401)
+
+        study_id = request.data.get("study_id")
+        if not study_id:
+            return Response({"error": "Missing study_id"}, status=400)
+
+        studies = request.user.studies.annotated_studies
+        if study_id not in studies:
+            studies.append(study_id)
+            request.user.studies.annotated_studies = studies
+            request.user.studies.save()
+
+        return Response({"message": "Study added"})
+
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return Response({'error': 'Authentication required'}, status=401)
+
+        return Response({"annotated_studies": request.user.studies.annotated_studies})
