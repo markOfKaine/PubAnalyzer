@@ -211,7 +211,7 @@ export const PDFProvider = ({
       return;
     }
 
-    if (highlight.title === undefined) {
+    if (highlight.title === "New Chat") {
       highlight.title = newMessage.content.slice(0, 60).trim() + "...";
     }
 
