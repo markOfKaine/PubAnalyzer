@@ -45,9 +45,10 @@ function ArticleCard({ article }) {
     pages,
     abstractUrl,
     pdfUrl,
+    abstractText
   } = article;
 
-  const { fetchPDFToDisplay, loading } = usePMContext();
+  const { fetchPDFToDisplay, loading, fetchArticleAbstract, setSelectedArticle } = usePMContext();
   const router = useRouter();
   const [isFetchingPDF, setIsFetchingPDF] = useState(false);
   const [error, setError] = useState(null);
@@ -61,16 +62,28 @@ function ArticleCard({ article }) {
       const pdfResponse = await fetchPDFToDisplay(pmcid);
 
       if (pdfResponse.success) {
+        // TODO: When llm token limit is increased, we can use the abstract text in the prompt
+        // uncomment when ready
+        // if (!article.abstractText) {
+        //   const abstractResponse = await fetchArticleAbstract(id);
+
+        //   if (abstractResponse.success) {
+        //     article.abstractText = abstractResponse.abstract;
+        //   } else {
+        //     console.error("Failed to fetch abstract:", abstractResponse.error);
+        //   }
+        // }
+        setSelectedArticle(article);
         router.push("/viewer");
         return;
       }
 
-      console.log("PDF not available for this article. 1");
+      console.log("PDF not available for this article.");
       setError(
         "PDF not available for this article. Please try again or selected a different article."
       );
     } catch (error) {
-      console.log("PDF not available for this article. 2 ", error);
+      console.log("Error - PDF not available for this article. ", error);
       setError("An error occurred. Please try again.");
     } finally {
       setIsFetchingPDF(false);

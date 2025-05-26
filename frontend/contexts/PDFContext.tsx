@@ -52,6 +52,7 @@ const PDFContext = createContext<{
     highlight: PubIHighlight,
     newMessage: PubbyChat
   ) => Promise<void> | void;
+  removeHighlight: (id: string) => void;
 }>({
   url: "",
   setUrl: (url: string) => {},
@@ -87,6 +88,7 @@ const PDFContext = createContext<{
   setShowEditNote: (showEditNote: boolean) => {},
   setShowAIPanel: (showAIPanel: boolean) => {},
   addOrUpdateHighlightChat: (highlight: PubIHighlight, newMessage: PubbyChat) => {},
+  removeHighlight: (id: string) => {},
 });
 
 export const usePDFContext = () => useContext(PDFContext);
@@ -145,6 +147,15 @@ export const PDFProvider = ({
   const getHighlightById = (id: string) => {
     return highlights.find((highlight) => highlight.id === id);
   };
+
+  const removeHighlight = (id: string) => {
+    setHighlights((prevHighlights) =>
+      prevHighlights.filter((highlight) => highlight.id !== id)
+    );
+    if (selectedHighlight?.id === id) {
+      setSelectedHighlight(null);
+    }
+  }
 
   const scrollToHighlightFromHash = useCallback(() => {
     const highlight = getHighlightById(parseIdFromHash());
@@ -361,6 +372,7 @@ export const PDFProvider = ({
     updateHighlightComment,
     getHighlightById,
     resetHash,
+    removeHighlight,
     scrollToHighlightFromHash,
     scrollViewerRef: (scrollTo) => {
       scrollViewerTo.current = scrollTo;
