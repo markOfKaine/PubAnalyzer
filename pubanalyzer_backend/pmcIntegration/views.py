@@ -7,6 +7,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import FileResponse, Http404
 from pathlib import Path
 
+from pmcIntegration.DocManager import DocManager
+
 class OriginCheck:
     allowed_origin = "http://localhost:3000" #change to frontend URL in production
 
@@ -22,8 +24,11 @@ class PMCFetchView(APIView):
         if not pmcid:
             return Response({"error": "PMCID is required"}, status=400)
 
+        # docManager = DocManager()
+        # pdf = docManager.get_document(pmcid)
+        # if not pdf:
         pdf_path = PMCService().download_extract_and_upload(pmcid)
-        if pdf_path:
+        if pdf_path: #or pdf
             return Response({
                 "message": f"Successfully processed {pmcid}",
                 "pdf_path": pdf_path

@@ -8,13 +8,16 @@ export const usePMContext = () => useContext(PubMedContext);
 export const PubMedProvider = ({ children }) => {
   
   const [pdfURL, setPDFURL] = useState(null);
+  const [selectedArticle, setSelectedArticle] = useState(null);
   const [loading, setLoading] = useState(false);
 
   // TODO: TW - Replace with actual API endpoint
   // sample pmc id: 10579494
 
+  // Fetch a PDF to display based on the provided PMC ID
   const fetchPDFToDisplay = async (pmcid) => {
     setLoading(true);
+    setSelectedArticle(null);
 
     try {
       const encodedPmcid = encodeURIComponent(pmcid);
@@ -48,6 +51,7 @@ export const PubMedProvider = ({ children }) => {
     }
   };
 
+  // Search PMC for articles matching the search term
   const searchPMC = async (searchTerm, maxResults = 20) => {
     const filteredTerm = `${searchTerm} AND open access[filter]`;
     const searchUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pmc&term=${encodeURIComponent(filteredTerm)}&retmax=${maxResults}&retmode=json`;
@@ -129,8 +133,9 @@ export const PubMedProvider = ({ children }) => {
         const pmidObj = article.articleids?.find(idObj => idObj.idtype === "pmid");
         const pmid = pmidObj && pmidObj.value !== "0" ? pmidObj.value : null;
 
+        // Article metadata - no abstract text here, we can fetch it separately if article is selected
         summaries.push({
-          id: pmcid,
+          id: id,
           pmcid: pmcid,
           pmid: pmid,
           doi: doi,
@@ -144,7 +149,8 @@ export const PubMedProvider = ({ children }) => {
           issue: article.issue || 'N/A',
           pages: article.pages || 'N/A',
           abstractUrl: `https://www.ncbi.nlm.nih.gov/pmc/articles/${pmcid}/`,
-          pdfUrl: `https://www.ncbi.nlm.nih.gov/pmc/articles/${pmcid}/pdf/`
+          pdfUrl: `https://www.ncbi.nlm.nih.gov/pmc/articles/${pmcid}/pdf/`,
+          abstractText: null,
         });
       }
       
@@ -155,6 +161,7 @@ export const PubMedProvider = ({ children }) => {
     }
   };
 
+  // Search for articles and get their summaries
   const searchAndGetSummaries = async (searchTerm) => {
     console.log(`Searching for articles about "${searchTerm}"...`);
     
@@ -178,10 +185,44 @@ export const PubMedProvider = ({ children }) => {
     return {summaries: summaries};
   };
 
+  // Fetch the abstract as text for a given PMC ID
+  const fetchArticleAbstract = async (pmcid) => {
+    const encodedPmcid = encodeURIComponent(pmcid);
+
+    try {
+      const response = await fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pmc&id=${encodedPmcid}&retmode=xml&rettype=abstract`);
+
+      if (!response.ok) {
+        throw new Error(`Error fetching abstract for PMC${pmcid}: ${response.status} ${response.statusText}`);
+      }
+
+      const xmlString = await response.text();
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+      const abstractElement = xmlDoc.querySelector('abstract');
+      
+      if (abstractElement) {
+        const paragraphs = abstractElement.querySelectorAll("p");
+        const abstractText = Array.from(paragraphs).map((p) => p.textContent.trim()).join(" ");
+        console.log("Abstract Found:", abstractText);
+        return { success: true, abstract: abstractText };
+      }
+
+      console.log("No abstract found");
+      return { success: false, error: "No abstract found" };
+    } catch (error) {
+      console.error("Error fetching abstract:", error);
+      return { success: false, error: error };
+    }    
+  }
+
   const contextValue = {
     pdfURL,
     fetchPDFToDisplay,
+    fetchArticleAbstract,
     searchAndGetSummaries,
+    setSelectedArticle,
+    selectedArticle,
   };
 
   return (

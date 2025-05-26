@@ -5,6 +5,8 @@ import hashlib
 from pathlib import Path
 from dotenv import load_dotenv
 
+from pmcIntegration.DocManager import DocManager
+
 def setup_logger(name: str, level=logging.INFO):
     logging.basicConfig(
         level=level,
@@ -32,6 +34,7 @@ class PMCService:
         log_level: int = logging.INFO
     ):
         load_dotenv()
+        # self.DocManager = DocManager()
         self.logger = setup_logger("PMCService", log_level)
         self.api_url = api_url or self.DEFAULT_OA_API_URL
         self.timeout = timeout
@@ -88,6 +91,7 @@ class PMCService:
                 with open(pdf_path, 'wb') as pf:
                     pf.write(tar.extractfile(member).read())
             self.logger.info(f"Extracted PDF to {pdf_path}")
+            # self.DocManager.add_document(pmcid, str(pdf_path))
 
             return str(pdf_path)
 

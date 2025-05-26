@@ -1,3 +1,4 @@
+import json
 import boto3
 import logging
 from dotenv import load_dotenv
@@ -7,7 +8,7 @@ import os
 # It includes methods for uploading, downloading, and listing files in an S3 bucket.
 
 class S3Service:
-    def __init__(self):
+    def __init__(self, bucket="pubanalyzer-docs"):
         try:        
             load_dotenv()
             logging.basicConfig(
@@ -19,7 +20,7 @@ class S3Service:
                 )
             logging.info("Initializing Logging.")
 
-            self.bucket_name = "pubanalyzer-articles"
+            self.bucket_name = bucket
             logging.info(f"Setting bucket name to {self.bucket_name}.")
 
             logging.info("Initializing S3Service.")
@@ -30,11 +31,39 @@ class S3Service:
             logging.error("Failed to create S3 client. Please check your AWS credentials and region.")
             raise
 
-    def upload_file(self, file_name, file_content):
-        logging.info(f"Uploading {file_content} to the bucket {self.bucket_name} as {file_name}.")
+    def upload_annotation(self, s3Key, file_content):
+        json_data = json.dumps(file_content)
 
         try:
-            self.s3_client.upload_file(file_name, self.bucket_name, file_content)
+            logging.info(f"Uploading annotation to S3 with key {s3Key}.")
+            self.s3_client.put_object(Bucket=self.bucket_name, Key=s3Key, Body=json_data, ContentType='application/json')
+            logging.info(f"Annotation uploaded successfully to {s3Key}.")
+        except Exception as e:
+            logging.error(f"Failed to upload annotation: {e}")
+            raise
+
+    def get_annotations(self, s3Key):
+        try:
+            logging.info(f"Retrieving annotations from S3 with key {s3Key}.")
+            response = self.s3_client.get_object(Bucket=self.bucket_name, Key=s3Key)
+            content = response['Body'].read().decode('utf-8')
+            return json.loads(content)
+        except self.s3_client.exceptions.NoSuchKey:
+            logging.error(f"No annotations found for key {s3Key}.")
+            return None
+        except Exception as e:
+            logging.error(f"Failed to retrieve annotations: {e}")
+            raise
+
+    def upload_file(self, file_name, file_path):
+        if not os.path.isfile(file_path):
+            logging.error(f"File not found at {file_path}")
+            raise FileNotFoundError(f"File not found at {file_path}")
+
+        logging.info(f"Uploading {file_path} to the bucket {self.bucket_name} as {file_name}.")
+
+        try:
+            self.s3_client.upload_file(file_path, self.bucket_name, file_name)
 
         except:
             logging.error(f"Failed to upload {file_name} to bucket {self.bucket_name}.")
@@ -42,13 +71,13 @@ class S3Service:
 
     def download_file(self, file_name):
         try:
-            self.s3_client.download_file(self.bucket_name, file_name, file_name)
+            return self.s3_client.download_file(self.bucket_name, file_name, file_name)
         except FileNotFoundError:
             logging.error(f"The file {file_name} was not found in bucket {self.bucket_name}.")
-            raise
+            return None
         except:
             logging.error(f"Failed to download {file_name} from bucket {self.bucket_name}.")
-            raise
+            return None
 
     def delete_file(self, file_name):
         try:
@@ -69,12 +98,3 @@ class S3Service:
         except:
             logging.error(f"Failed to list articles in bucket {self.bucket_name}.")
             raise
-
-#testing the S3Service class
-# s3 = S3Service()
-# with open("test.txt", "w") as f:
-#     f.write("This is a test file.")
-# s3.upload_file("test.txt", "PMCID123456")
-# print(s3.list_articles())
-# s3.download_file("PMCID123456", "test_downloaded.txt")
-# s3.delete_file("PMCID123456")
