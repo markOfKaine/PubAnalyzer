@@ -34,29 +34,17 @@ const promptTemplates = [
 
 function PDFAINote({ content, onAINoteConfirm, onCancel }) {
   const [text, setText] = useState("");
-  const [title, setTitle] = useState("");
   const [selectedPrompt, setSelectedPrompt] = useState(null);
 
   const handlePromptSelect = (value) => {
     const selected = promptTemplates.find((prompt) => prompt.name === value);
     setSelectedPrompt(selected);
-    if (selected) {
-      if (content.text) {
-        const promptText = selected.prompt + ' "' + content.text + '"...';
-        setTitle(promptText.slice(0, 30).trim());
-      }
-
-      if (content.image) {
-        setTitle("Image: " + selected.prompt.slice(0, 25).trim());
-      }
-    }
   };
 
   function handleAskAI(e) {
     e.preventDefault();
     if (selectedPrompt) {
       const noteData = {
-        title,
         text: selectedPrompt.isCustom ? text : undefined,
         emoji: "💬",
       };

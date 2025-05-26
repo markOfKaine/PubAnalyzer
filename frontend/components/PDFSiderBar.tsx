@@ -5,22 +5,19 @@ import { usePDFContext } from "@/contexts/PDFContext";
 
 function PDFSiderBar() {
   const { 
-    selectedHighlight, 
     showAIPanel, 
     showEditNote 
   } = usePDFContext();
 
 
   const getSideBarContent = () => {
-        if (selectedHighlight) {
-          if (showAIPanel) {
-            return <AIChatPanel highlight={selectedHighlight} />;
-          } else if (showEditNote) {
-            return <EditNotePanel highlight={selectedHighlight} />;
-          }
-        }
-        
-        return <AnnotationBar />;
+    if (showAIPanel) {
+      return <AIChatPanel />;
+    } else if (showEditNote) {
+      return <EditNotePanel />;
+    } else {
+      return <AnnotationBar />;
+    }
   }
 
   return (

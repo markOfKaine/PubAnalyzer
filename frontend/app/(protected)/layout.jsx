@@ -1,4 +1,5 @@
 import { PubMedProvider } from "@/contexts/PubMedContext";
+import { LLMProvider } from "@/contexts/LLMContext";
 import ProtectedRoute from "@/contexts/ProtectedRoute";
 
 export const metadata = {
@@ -9,10 +10,12 @@ export const metadata = {
 export default function Layout({ children }) {
   return (
     <ProtectedRoute>
-      <PubMedProvider>
-        {/* Main page elements are the 'children' */}
-        {children}
-      </PubMedProvider>
+      <LLMProvider>
+        <PubMedProvider>
+          {/* Main page elements are the 'children' */}
+          {children}
+        </PubMedProvider>
+      </LLMProvider>
     </ProtectedRoute>
   );
 }

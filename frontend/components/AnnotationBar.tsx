@@ -1,9 +1,18 @@
 import type { IHighlight } from "react-pdf-highlighter";
 import { Button } from "@/components/ui/button";
 import "react-pdf-highlighter/dist/style.css";
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import AnnotationCard from "@/components/AnnotationCard";
-
 import { usePDFContext } from "@/contexts/PDFContext";
 
 const updateHash = (highlight: IHighlight) => {
@@ -35,15 +44,41 @@ function AnnotationBar() {
         </ul>
       </div>
       <div className="pt-4 border-t mt-4 w-full">
-        <Button
-          onClick={resetHighlights}
-          className="w-full"
-          variant="destructive"
-          size="sm"
-          disabled={highlights.length === 0}
-        >
-          {highlights.length > 0 ? "Clear highlights" : "No highlights"}
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              className="w-full"
+              variant="destructive"
+              size="sm"
+              disabled={highlights.length === 0}
+            >
+              {highlights.length > 0 ? "Clear highlights" : "No highlights"}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent className="">
+            <AlertDialogHeader className="">
+              <AlertDialogTitle className="">
+                Are you sure you want to remove all highlights for this document?
+              </AlertDialogTitle>
+              <AlertDialogDescription className="">
+                This action cannot be undone and will permanently delete all
+                annotations for this document.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="">
+              <AlertDialogCancel className="">Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className=""
+                onClick={() => {
+                  console.log("Removing all highlights.");
+                  resetHighlights();
+                }}
+              >
+                Continue
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
