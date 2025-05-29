@@ -7,7 +7,6 @@ from pmcIntegration.DocManager import DocManager
 import logging
 import json
 
-@method_decorator(csrf_exempt, name='dispatch')
 class UploadAnnotationView(View):
     def post(self, request):
         try:
@@ -28,7 +27,6 @@ class UploadAnnotationView(View):
             logging.error(f"Error uploading annotation: {e}")
             return JsonResponse({'error': str(e)}, status=500)
 
-@method_decorator(csrf_exempt, name='dispatch')
 class DownloadAnnotationView(View):
     def get(self, request):
         try:
@@ -52,7 +50,6 @@ class DownloadAnnotationView(View):
             return JsonResponse({'error': str(e)}, status=500)
 
 
-@method_decorator(csrf_exempt, name='dispatch')
 class ListArticlesView(View):
     def get(self, request):
         try:
@@ -64,7 +61,6 @@ class ListArticlesView(View):
             logging.error(f"Error listing articles: {e}")
             return JsonResponse({'error': str(e)}, status=500)
         
-@method_decorator(csrf_exempt, name='dispatch')
 class UploadArticleView(View):
     def post(self, request):
         try:
@@ -84,7 +80,6 @@ class UploadArticleView(View):
             logging.error(f"Error uploading file: {e}")
             return JsonResponse({'error': str(e)}, status=500)
         
-@method_decorator(csrf_exempt, name='dispatch')
 class DownloadArticleView(View):
     def get(self, request):
         try:

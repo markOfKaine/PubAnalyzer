@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from .models import UserStudies
 
 class OriginCheck:
     allowed_origin = "http://localhost:3000" #change to frontend URL in production
@@ -18,7 +19,6 @@ class OriginCheck:
         #     return Response({"detail": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
         return super().dispatch(request, *args, **kwargs)
 
-@method_decorator(csrf_exempt, name='dispatch')
 class RegisterView(OriginCheck, generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -26,8 +26,9 @@ class RegisterView(OriginCheck, generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        login(self.request, user)  # Auto-login after successful registration
+        user = serializer.save() #creates user in auth_user table
+        UserStudies.objects.create(user=user) #creates user in docs_userstudies table
+        login(self.request, user)
         
         return Response({
             'message': 'Registration successful',
@@ -38,7 +39,6 @@ class RegisterView(OriginCheck, generics.CreateAPIView):
             }
         }, status=status.HTTP_201_CREATED)
     
-@method_decorator(csrf_exempt, name='dispatch')
 class UserAuthView(OriginCheck, APIView):
     def get(self, request):
         if request.user.is_authenticated:
@@ -50,7 +50,6 @@ class UserAuthView(OriginCheck, APIView):
             })
         return Response({"detail": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
 
-@method_decorator(csrf_exempt, name='dispatch')
 class SessionLoginView(OriginCheck, APIView):
     def post(self, request):
         username = request.data.get('username')
@@ -77,8 +76,30 @@ class SessionLoginView(OriginCheck, APIView):
         else:
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
-@method_decorator(csrf_exempt, name='dispatch')
 class LogoutView(OriginCheck, APIView):
     def post(self, request):
         logout(request)
         return Response({"message": "Logged out successfully"})
+    
+class AnnotatedStudiesView(OriginCheck, APIView):
+    def post(self, request):
+        if not request.user.is_authenticated:
+            return Response({'error': 'Authentication required'}, status=401)
+
+        study_id = request.data.get("study_id")
+        if not study_id:
+            return Response({"error": "Missing study_id"}, status=400)
+
+        studies = request.user.studies.annotated_studies
+        if study_id not in studies:
+            studies.append(study_id)
+            request.user.studies.annotated_studies = studies
+            request.user.studies.save()
+
+        return Response({"message": "Study added"})
+
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return Response({'error': 'Authentication required'}, status=401)
+
+        return Response({"annotated_studies": request.user.studies.annotated_studies})
