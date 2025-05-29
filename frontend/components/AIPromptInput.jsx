@@ -50,13 +50,12 @@ function AIPromptInput() {
     console.log("Sending message to LLM 1:", inputValue);
     if (!inputValue.trim() || isLoading) return;
 
-    // TODO: Uncomment when token limit is increased to use a better contetual promp
-    // const userQuestion = inputValue.trim();
-    // const prompt = constructPrompt(userQuestion, selectedHighlight, selectedArticle);
+    const userQuestion = inputValue.trim();
+    const prompt = constructPrompt(userQuestion, selectedHighlight, selectedArticle);
 
     const userMessage = {
       id: Date.now().toString(),
-      content: inputValue.trim(),
+      content: userQuestion,
       sender: "user",
       timestamp: new Date(),
     };
@@ -78,12 +77,8 @@ function AIPromptInput() {
     setMessages((prev) => [...prev, loadingMessage]);
 
     try {
-        // TODO: pass 'prompt' in here instead of 'userQuestion' when token limit is increased
-        // also remove the below fetch
-        // console.log("Constructed Prompt:", prompt);
-        // const aiResponse = await fetchLLMTextResponse(prompt);
-        
-        const aiResponse = await fetchLLMTextResponse(userMessage.content , selectedHighlight.content.image);
+        console.log("Constructed Prompt:", prompt);
+        const aiResponse = await fetchLLMTextResponse(prompt , selectedHighlight.content.image);
         console.log("AI Response:", aiResponse);
         
         const aiMessage = {
