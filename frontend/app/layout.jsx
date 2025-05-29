@@ -2,6 +2,7 @@ import { Roboto } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { UserProvider } from "@/contexts/UserContext";
+import Head from "next/head";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -11,11 +12,19 @@ const roboto = Roboto({
 export const metadata = {
   title: "PubAnalyzer",
   description: "Analyze PubMed articles",
+  icons: {
+    icon:"/favicon.ico",
+ },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
+    <head>
+      <link rel="icon" href="/favicon.ico" />
+      <title>PubAnalyzer</title>
+      <meta name="description" content="Analyze PubMed Articles"/>
+    </head>
       <body className={`${roboto.variable}`}>
         <ThemeProvider
           attribute="class"

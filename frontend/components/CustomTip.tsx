@@ -88,7 +88,7 @@ function CustomTip({ onConfirm, onOpen }: TipProps) {
           size="default"
           className="bg-primary text-background w-1/2 ml-1"
           onClick={() => {
-            onConfirm({ title, text, emoji: "💬" });
+            onConfirm({ title, text, emoji: "💬" }); //title was making the frontend tweak out (removed it, idk if it blew anything up)
             setIsEditing(false);
           }}
         >
