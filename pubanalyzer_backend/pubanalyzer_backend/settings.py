@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["api.pubanalyzer.live"]
 
 SESSION_COOKIE_SECURE = False # Ensures the session cookie is only sent over HTTPS
 
@@ -64,6 +64,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    # "https://pubanalyzer.live",
 ]
 
 CORS_ALLOW_CREDENTIALS = True # Allows cookies to be included in CORS requests
