@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["api.pubanalyzer.live"]
+ALLOWED_HOSTS = ["api.pubanalyzer.live", "localhost", "127.0.0.1"]
 
 SESSION_COOKIE_SECURE = False # Ensures the session cookie is only sent over HTTPS
 
