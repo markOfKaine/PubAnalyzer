@@ -13,6 +13,7 @@ import type {
   NewHighlight,
   ScaledPosition,
 } from "react-pdf-highlighter";
+import { useAnnotationContext } from "@/contexts/AnnotationContext";
 
 const PDFContext = createContext<{
   url: string;
@@ -87,7 +88,10 @@ const PDFContext = createContext<{
   showEditNote: false,
   setShowEditNote: (showEditNote: boolean) => {},
   setShowAIPanel: (showAIPanel: boolean) => {},
-  addOrUpdateHighlightChat: (highlight: PubIHighlight, newMessage: PubbyChat) => {},
+  addOrUpdateHighlightChat: (
+    highlight: PubIHighlight,
+    newMessage: PubbyChat
+  ) => {},
   removeHighlight: (id: string) => {},
 });
 
@@ -136,6 +140,7 @@ export const PDFProvider = ({
   children,
   initialUrl = "https://arxiv.org/pdf/1708.08021",
 }) => {
+  const { uploadAnnotation, annotations } = useAnnotationContext();
   const [url, setUrl] = useState(initialUrl);
   const [highlights, setHighlights] = useState<Array<PubIHighlight>>([]);
   const [selectedHighlight, setSelectedHighlight] =
@@ -155,7 +160,7 @@ export const PDFProvider = ({
     if (selectedHighlight?.id === id) {
       setSelectedHighlight(null);
     }
-  }
+  };
 
   const scrollToHighlightFromHash = useCallback(() => {
     const highlight = getHighlightById(parseIdFromHash());
@@ -176,27 +181,37 @@ export const PDFProvider = ({
     };
   }, [scrollToHighlightFromHash]);
 
-  const addHighlight = (highlight: PubNewHighlight) => {
+  useEffect(() => {
+    console.log("TW - PDFContext useEffect - annotations", annotations);
+    setHighlights(annotations);
+  }, [annotations]);
+
+  const addHighlight = async (highlight: PubNewHighlight) => {
     let title = "";
     const isAIHighlight = highlight?.chats !== undefined;
     const isImageHighlight = highlight.content.image !== undefined;
 
     if (isImageHighlight) {
       title = isAIHighlight
-      ? highlight.chats[0].content.slice(0, 60).trim() + "..."
-      : "Area Select - " +
-        highlight.comment.text.slice(0, 40).trim() +
-        "...";
+        ? highlight.chats[0].content.slice(0, 60).trim() + "..."
+        : "Area Select - " + highlight.comment.text.slice(0, 40).trim() + "...";
     } else {
       title = isAIHighlight
-      ? highlight.chats[0].content.slice(0, 60).trim() + "..."
-      : highlight.comment.text.slice(0, 60).trim() + "...";
+        ? highlight.chats[0].content.slice(0, 60).trim() + "..."
+        : highlight.comment.text.slice(0, 60).trim() + "...";
     }
 
     highlight.title = title;
     const newHighlight = { ...highlight, id: getNextId() };
     console.log("Saving highlight", newHighlight);
     setHighlights((prevHighlights) => [newHighlight, ...prevHighlights]);
+
+    try {
+      // Uploads the highlight to the backend
+      await uploadAnnotation(newHighlight);
+    } catch (error) {
+      console.error("Error saving highlight:", error);
+    }
   };
 
   const addAIHighlight = (highlight: PubNewHighlight) => {
@@ -226,8 +241,11 @@ export const PDFProvider = ({
       highlight.title = newMessage.content.slice(0, 60).trim() + "...";
     }
 
+    let existingIndex = -1;
+    let uploadNewHighlight = null;
+
     setHighlights((prevHighlights) => {
-      const existingIndex = prevHighlights.findIndex((h) => h.id === highlight.id);
+      existingIndex = prevHighlights.findIndex((h) => h.id === highlight.id);
 
       if (existingIndex === -1) {
         // If Highlight doesn't exist in array then add it with the new message
@@ -235,6 +253,7 @@ export const PDFProvider = ({
           ...highlight,
           chats: [newMessage],
         };
+        uploadNewHighlight = newHighlight;
         return [...prevHighlights, newHighlight];
       } else {
         // If Highlight exists then append the new message to its chats
@@ -260,6 +279,20 @@ export const PDFProvider = ({
       }
       return prev;
     });
+
+    // TODO: TW - 
+    // When edit annotation endpoint is added, we need to update this logic
+    // On first highlight, we upload the new highlight
+    // If the highlight already exists, we need to update chats so they are saved
+    // in the backend
+    if (existingIndex === -1 && uploadNewHighlight) {
+      try {
+        // Uploads the highlight to the backend
+        await uploadAnnotation(uploadNewHighlight);
+      } catch (error) {
+        console.error("Error saving highlight:", error);
+      }
+    }
   };
 
   const updateHighlight = (
@@ -288,7 +321,7 @@ export const PDFProvider = ({
     );
   };
 
-  const updateHighlightComment = (
+  const updateHighlightComment = async (
     highlightId: string,
     position: Partial<ScaledPosition>,
     content: Partial<Content>,
@@ -331,6 +364,15 @@ export const PDFProvider = ({
       };
 
       setSelectedHighlight(updatedSelectedHighlight);
+    }
+
+    // Upload the updated highlight to backend
+    if (updatedHighlight) {
+      try {
+        await uploadAnnotation(updatedHighlight);
+      } catch (error) {
+        console.error("Error saving highlight:", error);
+      }
     }
   };
 

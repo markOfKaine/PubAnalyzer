@@ -1,6 +1,7 @@
 "use client";
 import { useContext, useState, createContext, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { apiCall } from "@/utilities/api";
 
 const UserContext = createContext();
 
@@ -15,7 +16,6 @@ export const UserProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  // TODO: TW - Replace with actual API endpoint
   const register = async (userData) => {
     try {
       // Transform the data to match backend api field names
@@ -27,13 +27,9 @@ export const UserProvider = ({ children }) => {
         last_name: userData.lastName,
       };
 
-      const response = await fetch("http://127.0.0.1:8000/api/register/", {
+      const response = await apiCall("/api/register/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(transformedData),
-        credentials: "include",
       });
 
       if (response.ok) {
@@ -75,7 +71,6 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  // TODO: TW - Replace with actual API endpoint
   const login = async (userData) => {
     try {
       // Transform the data to match backend API
@@ -84,13 +79,9 @@ export const UserProvider = ({ children }) => {
         password: userData.password,
       };
 
-      const response = await fetch("http://127.0.0.1:8000/api/login/", {
+      const response = await apiCall("/api/login/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(loginData),
-        credentials: "include",
       });
 
       if (response.ok) {
@@ -112,13 +103,13 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  // TODO: TW - Replace with actual API endpoint
   const logout = async () => {
     try {
-      await fetch("http://127.0.0.1:8000/api/logout/", {
+      await apiCall("/api/logout/", {
         method: "POST",
         credentials: "include",
       });
+
       setUser(null);
       router.push("/login");
     } catch (error) {
@@ -126,28 +117,29 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  // TODO: TW - Replace with actual API endpoint
   const checkAuth = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/auth/status/", {
-        credentials: "include",
+      const response = await apiCall("/api/auth/status/", {
+        method: "GET",
       });
 
       if (response.ok) {
         const data = await response.json();
-        const user = data.user;
+
         setUser({
-          id: user.id,
-          email: user.email,
-          first_name: user.first_name,
+          id: data.id,
+          email: data.email,
+          first_name: data.first_name,
         });
-      } else {
-        setUser(null);
+        return { success: true };
       }
+      setUser(null);
+      return { success: false};
     } catch (error) {
       console.error("Auth check failed:", error);
       setUser(null);
+      return { success: false};
     } finally {
       setLoading(false);
     }

@@ -7,8 +7,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
 from .models import UserStudies, Study
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie, csrf_protect
+from django.http import JsonResponse
+from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 
 class OriginCheck:
     allowed_origin = "http://localhost:3000" #change to frontend URL in production
@@ -20,6 +23,7 @@ class OriginCheck:
         return super().dispatch(request, *args, **kwargs)
 
 class RegisterView(OriginCheck, generics.CreateAPIView):
+    permission_classes = [AllowAny]
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -40,6 +44,8 @@ class RegisterView(OriginCheck, generics.CreateAPIView):
         }, status=status.HTTP_201_CREATED)
     
 class UserAuthView(OriginCheck, APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request):
         if request.user.is_authenticated:
             return Response({
@@ -50,18 +56,20 @@ class UserAuthView(OriginCheck, APIView):
             })
         return Response({"detail": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
 
+
 class SessionLoginView(OriginCheck, APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
-
+        
         if not username or not password:
             return Response({"error": "Username and password are required."}, status=400)
-
+        
         user = authenticate(request, username=username, password=password)
-
         if user is not None:
-            login(request, user)  # creates a session
+            login(request, user)
             return Response({
                 'message': 'Login successful',
                 'user': {
@@ -70,18 +78,22 @@ class SessionLoginView(OriginCheck, APIView):
                     'email': user.email,
                     'first_name': user.first_name,
                     'last_name': user.last_name,
-            }
-        })
-
+                }
+            })
         else:
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class LogoutView(OriginCheck, APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         logout(request)
         return Response({"message": "Logged out successfully"})
-    
-class AnnotatedStudiesView(OriginCheck, APIView):
+
+
+class AnnotatedStudiesView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         if not request.user.is_authenticated:
             return Response({'error': 'Authentication required'}, status=401)
@@ -102,7 +114,10 @@ class AnnotatedStudiesView(OriginCheck, APIView):
         studies = request.user.studies.annotated_studies.all()
         return Response({"annotated_studies": [s.study_id for s in studies]})
     
+    
 class FavoriteStudiesView(OriginCheck, APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         if not request.user.is_authenticated:
             return Response({'error': 'Authentication required'}, status=401)
@@ -137,3 +152,7 @@ class FavoriteStudiesView(OriginCheck, APIView):
             return Response({"message": "Study removed from favorites"})
         except Study.DoesNotExist:
             return Response({"error": "Study not found"}, status=404)
+
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    return JsonResponse({'success': True})

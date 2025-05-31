@@ -2,7 +2,6 @@ import { Roboto } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { UserProvider } from "@/contexts/UserContext";
-import Head from "next/head";
 
 const roboto = Roboto({
   subsets: ["latin"],

@@ -11,7 +11,6 @@ import { useState } from "react";
 import { useLLMContext } from "@/contexts/LLMContext";
 import PDFNewNoteCard from "@/components/PDFNewNoteCard";
 
-
 const HighlightPopup = ({
   comment,
 }: {

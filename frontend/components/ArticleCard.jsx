@@ -28,7 +28,8 @@ import Image from "next/image";
 import { usePMContext } from "@/contexts/PubMedContext";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { set } from "react-hook-form";
+import { useAnnotationContext } from "@/contexts/AnnotationContext";
+import { useUserDocContext } from "@/contexts/UserDocumentContext";
 
 function ArticleCard({ article }) {
   const {
@@ -49,6 +50,8 @@ function ArticleCard({ article }) {
   } = article;
 
   const { fetchPDFToDisplay, loading, fetchArticleAbstract, setSelectedArticle } = usePMContext();
+  const { getAnnotations } = useAnnotationContext(); 
+  const { addUserDocument } = useUserDocContext();
   const router = useRouter();
   const [isFetchingPDF, setIsFetchingPDF] = useState(false);
   const [error, setError] = useState(null);
@@ -59,20 +62,21 @@ function ArticleCard({ article }) {
     
     try {
       const pmcid = article.pmcid;
-      const pdfResponse = await fetchPDFToDisplay(pmcid);
-
+      const pdfResponse = await fetchPDFToDisplay(article);
       if (pdfResponse.success) {
-        // TODO: When llm token limit is increased, we can use the abstract text in the prompt
-        // uncomment when ready
-        // if (!article.abstractText) {
-        //   const abstractResponse = await fetchArticleAbstract(id);
+        if (!article.abstractText) {
+          const abstractResponse = await fetchArticleAbstract(id);
 
-        //   if (abstractResponse.success) {
-        //     article.abstractText = abstractResponse.abstract;
-        //   } else {
-        //     console.error("Failed to fetch abstract:", abstractResponse.error);
-        //   }
-        // }
+          if (abstractResponse.success) {
+            article.abstractText = abstractResponse.abstract;
+          } else {
+            console.error("Failed to fetch abstract:", abstractResponse.error);
+          }
+        }
+
+        addUserDocument(pmcid)
+        await getAnnotations(pmcid);
+
         setSelectedArticle(article);
         router.push("/viewer");
         return;

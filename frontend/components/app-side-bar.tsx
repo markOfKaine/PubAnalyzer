@@ -42,7 +42,7 @@ const data = {
   ],
 };
 
-const hasSideBarTrigger = ["/viewer"];
+const hasSideBarTrigger = ["/viewer/"];
 
 function AppSidebar() {
   const [activeItem, setActiveItem] = useState(data.navMain[0]);
