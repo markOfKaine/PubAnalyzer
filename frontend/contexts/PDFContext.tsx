@@ -13,6 +13,7 @@ import type {
   NewHighlight,
   ScaledPosition,
 } from "react-pdf-highlighter";
+import { useAnnotationContext } from "@/contexts/AnnotationContext";
 
 const PDFContext = createContext<{
   url: string;
@@ -136,6 +137,8 @@ export const PDFProvider = ({
   children,
   initialUrl = "https://arxiv.org/pdf/1708.08021",
 }) => {
+  
+  const { uploadAnnotation, annotations } = useAnnotationContext();
   const [url, setUrl] = useState(initialUrl);
   const [highlights, setHighlights] = useState<Array<PubIHighlight>>([]);
   const [selectedHighlight, setSelectedHighlight] =
@@ -176,7 +179,12 @@ export const PDFProvider = ({
     };
   }, [scrollToHighlightFromHash]);
 
-  const addHighlight = (highlight: PubNewHighlight) => {
+  useEffect(() => {
+    console.log("TW - PDFContext useEffect - annotations", annotations);
+    setHighlights(annotations);
+  }, [annotations]);
+
+  const addHighlight = async (highlight: PubNewHighlight) => {
     let title = "";
     const isAIHighlight = highlight?.chats !== undefined;
     const isImageHighlight = highlight.content.image !== undefined;
@@ -197,6 +205,13 @@ export const PDFProvider = ({
     const newHighlight = { ...highlight, id: getNextId() };
     console.log("Saving highlight", newHighlight);
     setHighlights((prevHighlights) => [newHighlight, ...prevHighlights]);
+
+    try {
+      // Uploads the highlight to the backend
+      await uploadAnnotation(newHighlight);
+    } catch (error) {
+      console.error("Error saving highlight:", error);
+    }
   };
 
   const addAIHighlight = (highlight: PubNewHighlight) => {
@@ -288,7 +303,7 @@ export const PDFProvider = ({
     );
   };
 
-  const updateHighlightComment = (
+  const updateHighlightComment = async (
     highlightId: string,
     position: Partial<ScaledPosition>,
     content: Partial<Content>,
@@ -331,6 +346,15 @@ export const PDFProvider = ({
       };
 
       setSelectedHighlight(updatedSelectedHighlight);
+    }
+
+    // Upload the updated highlight to backend
+    if (updatedHighlight) {
+      try {
+        await uploadAnnotation(updatedHighlight);
+      } catch (error) {
+        console.error("Error saving highlight:", error);
+      }
     }
   };
 

@@ -221,6 +221,7 @@ export const PubMedProvider = ({ children }) => {
     fetchPDFToDisplay,
     fetchArticleAbstract,
     searchAndGetSummaries,
+    getPMCSummaries,
     setSelectedArticle,
     selectedArticle,
   };

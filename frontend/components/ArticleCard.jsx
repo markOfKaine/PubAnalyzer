@@ -28,7 +28,7 @@ import Image from "next/image";
 import { usePMContext } from "@/contexts/PubMedContext";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { set } from "react-hook-form";
+import { useAnnotationContext } from "@/contexts/AnnotationContext";
 
 function ArticleCard({ article }) {
   const {
@@ -49,6 +49,7 @@ function ArticleCard({ article }) {
   } = article;
 
   const { fetchPDFToDisplay, loading, fetchArticleAbstract, setSelectedArticle } = usePMContext();
+  const { getAnnotations } = useAnnotationContext();
   const router = useRouter();
   const [isFetchingPDF, setIsFetchingPDF] = useState(false);
   const [error, setError] = useState(null);
@@ -73,6 +74,10 @@ function ArticleCard({ article }) {
         //     console.error("Failed to fetch abstract:", abstractResponse.error);
         //   }
         // }
+        
+        const annotationsResponse = await getAnnotations(pmcid);
+        console.log("Annotations fetched:", annotationsResponse);
+
         setSelectedArticle(article);
         router.push("/viewer");
         return;
