@@ -7,12 +7,13 @@ from pmcIntegration.DocManager import DocManager
 import logging
 import json
 
+@method_decorator(csrf_exempt, name='dispatch')
 class UploadAnnotationView(View):
     def post(self, request):
         try:
             data = json.loads(request.body)
-            userID = data.get('userID')
-            pmcID = data.get('pmcID')
+            userID = request.GET.get('userID')
+            pmcID = request.GET.get('pmcID')
             file_content = data.get('file_content')
             
             if not userID or not pmcID or not file_content:
@@ -27,12 +28,12 @@ class UploadAnnotationView(View):
             logging.error(f"Error uploading annotation: {e}")
             return JsonResponse({'error': str(e)}, status=500)
 
+@method_decorator(csrf_exempt, name='dispatch')
 class DownloadAnnotationView(View):
     def get(self, request):
         try:
-            data = json.loads(request.body)
-            userID = data.get('userID')
-            pmcID = data.get('pmcID')
+            userID = request.GET.get('userID')
+            pmcID = request.GET.get('pmcID')
             
             if not userID or not pmcID:
                 return JsonResponse({'error': 'userID and pmcID are required.'}, status=400)
@@ -49,7 +50,7 @@ class DownloadAnnotationView(View):
             logging.error(f"Error retrieving annotations: {e}")
             return JsonResponse({'error': str(e)}, status=500)
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class ListArticlesView(View):
     def get(self, request):
         try:
@@ -60,7 +61,8 @@ class ListArticlesView(View):
         except Exception as e:
             logging.error(f"Error listing articles: {e}")
             return JsonResponse({'error': str(e)}, status=500)
-        
+
+@method_decorator(csrf_exempt, name='dispatch')    
 class UploadArticleView(View):
     def post(self, request):
         try:
@@ -79,7 +81,8 @@ class UploadArticleView(View):
         except Exception as e:
             logging.error(f"Error uploading file: {e}")
             return JsonResponse({'error': str(e)}, status=500)
-        
+
+@method_decorator(csrf_exempt, name='dispatch')    
 class DownloadArticleView(View):
     def get(self, request):
         try:
