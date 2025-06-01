@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LoginSchema } from "@/types/LoginSchema";
+import { ensureCSRFToken } from "@/utilities/api";
 
 function SignInPage() {
   const router = useRouter();
@@ -42,6 +43,11 @@ function SignInPage() {
       password: "",
     },
   });
+
+  useEffect(() => {
+    // Ensure CSRF token is set for the login request
+    ensureCSRFToken();
+  }, []);
 
   const onSubmit = async (data) => {
     setError(null);
