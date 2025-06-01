@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from .models import UserStudies
+from .models import UserStudies, Study
 
 class OriginCheck:
     allowed_origin = "http://localhost:3000" #change to frontend URL in production
@@ -90,11 +90,8 @@ class AnnotatedStudiesView(OriginCheck, APIView):
         if not study_id:
             return Response({"error": "Missing study_id"}, status=400)
 
-        studies = request.user.studies.annotated_studies
-        if study_id not in studies:
-            studies.append(study_id)
-            request.user.studies.annotated_studies = studies
-            request.user.studies.save()
+        study, _ = Study.objects.get_or_create(study_id=study_id)
+        request.user.studies.annotated_studies.add(study)
 
         return Response({"message": "Study added"})
 
@@ -102,4 +99,41 @@ class AnnotatedStudiesView(OriginCheck, APIView):
         if not request.user.is_authenticated:
             return Response({'error': 'Authentication required'}, status=401)
 
-        return Response({"annotated_studies": request.user.studies.annotated_studies})
+        studies = request.user.studies.annotated_studies.all()
+        return Response({"annotated_studies": [s.study_id for s in studies]})
+    
+class FavoriteStudiesView(OriginCheck, APIView):
+    def post(self, request):
+        if not request.user.is_authenticated:
+            return Response({'error': 'Authentication required'}, status=401)
+
+        study_id = request.data.get("study_id")
+        if not study_id:
+            return Response({"error": "Missing study_id"}, status=400)
+
+        study, _ = Study.objects.get_or_create(study_id=study_id)
+        request.user.studies.favorited_studies.add(study)
+
+        return Response({"message": "Study favorited"})
+
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return Response({'error': 'Authentication required'}, status=401)
+
+        favorites = request.user.studies.favorited_studies.all()
+        return Response({"favorited_studies": [s.study_id for s in favorites]})
+    
+    def delete(self, request):
+        if not request.user.is_authenticated:
+            return Response({'error': 'Authentication required'}, status=401)
+
+        study_id = request.data.get("study_id")
+        if not study_id:
+            return Response({"error": "Missing study_id"}, status=400)
+
+        try:
+            study = Study.objects.get(study_id=study_id)
+            request.user.studies.favorited_studies.remove(study)
+            return Response({"message": "Study removed from favorites"})
+        except Study.DoesNotExist:
+            return Response({"error": "Study not found"}, status=404)
