@@ -11,10 +11,10 @@ import json
 class UploadAnnotationView(View):
     def post(self, request):
         try:
-            data = json.loads(request.body)
+            file_content = json.loads(request.body)
             userID = request.GET.get('userID')
             pmcID = request.GET.get('pmcID')
-            file_content = data.get('file_content')
+            # file_content = data.get('file_content')
             
             if not userID or not pmcID or not file_content:
                 return JsonResponse({'error': 'userID, pmcID, and file_content are required.'}, status=400)

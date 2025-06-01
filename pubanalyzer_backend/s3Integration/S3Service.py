@@ -32,25 +32,58 @@ class S3Service:
             raise
 
     def upload_annotation(self, s3Key, file_content):
-        json_data = json.dumps(file_content)
-
         try:
-            logging.info(f"Uploading annotation to S3 with key {s3Key}.")
-            self.s3_client.put_object(Bucket=self.bucket_name, Key=s3Key, Body=json_data, ContentType='application/json')
-            logging.info(f"Annotation uploaded successfully to {s3Key}.")
+            existing = self.get_annotations(s3Key)
+            if existing is None:
+                existing = []
+
+            annotation_id = file_content.get('id') ##should be a unique id for each annotation
+            if not annotation_id:
+                raise ValueError("Annotation must include an 'id' field.")
+
+            updated = False
+            for idx, annotation in enumerate(existing):
+                if annotation.get('id') == annotation_id:
+                    existing[idx] = file_content
+                    updated = True
+                    logging.info(f"Updated existing annotation with ID {annotation_id}.")
+                    break
+
+            if not updated:
+                existing.append(file_content)
+                logging.info(f"Appended new annotation with ID {annotation_id}.")
+
+            json_data = json.dumps(existing)
+            self.s3_client.put_object(
+                Bucket=self.bucket_name,
+                Key=s3Key,
+                Body=json_data,
+                ContentType='application/json'
+            )
+            logging.info(f"Annotations saved successfully to {s3Key}.")
+
         except Exception as e:
             logging.error(f"Failed to upload annotation: {e}")
             raise
+
 
     def get_annotations(self, s3Key):
         try:
             logging.info(f"Retrieving annotations from S3 with key {s3Key}.")
             response = self.s3_client.get_object(Bucket=self.bucket_name, Key=s3Key)
             content = response['Body'].read().decode('utf-8')
-            return json.loads(content)
+            data = json.loads(content)
+
+            if not isinstance(data, list):
+                logging.warning(f"Expected a list in {s3Key}, but got {type(data)}. Converting to list.")
+                data = [data]
+
+            return data
+        
         except self.s3_client.exceptions.NoSuchKey:
             logging.error(f"No annotations found for key {s3Key}.")
             return None
+        
         except Exception as e:
             logging.error(f"Failed to retrieve annotations: {e}")
             raise
