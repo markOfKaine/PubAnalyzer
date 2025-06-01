@@ -88,6 +88,36 @@ class S3Service:
             logging.error(f"Failed to retrieve annotations: {e}")
             raise
 
+    def delete_annotation(self, s3Key, file_content):
+        try:
+            existing = self.get_annotations(s3Key)
+            if existing is None:
+                logging.warning(f"No annotations found for key {s3Key}. Nothing to delete.")
+                return
+
+            annotation_id = file_content.get('id')
+            if not annotation_id:
+                raise ValueError("Annotation must include an 'id' field.")
+
+            updated_annotations = [annotation for annotation in existing if annotation.get('id') != annotation_id]
+
+            if len(updated_annotations) == len(existing):
+                logging.warning(f"No annotation with ID {annotation_id} found to delete.")
+                return
+
+            json_data = json.dumps(updated_annotations)
+            self.s3_client.put_object(
+                Bucket=self.bucket_name,
+                Key=s3Key,
+                Body=json_data,
+                ContentType='application/json'
+            )
+            logging.info(f"Annotation with ID {annotation_id} deleted successfully from {s3Key}.")
+
+        except Exception as e:
+            logging.error(f"Failed to delete annotation: {e}")
+            raise
+
     def upload_file(self, file_name, file_path):
         if not os.path.isfile(file_path):
             logging.error(f"File not found at {file_path}")

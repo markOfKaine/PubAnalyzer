@@ -49,6 +49,26 @@ class DownloadAnnotationView(View):
         except Exception as e:
             logging.error(f"Error retrieving annotations: {e}")
             return JsonResponse({'error': str(e)}, status=500)
+        
+@method_decorator(csrf_exempt, name='dispatch')
+class DeleteAnnotationView(View):
+    def delete(self, request):
+        try:
+            file_content = json.loads(request.body)
+            userID = request.GET.get('userID')
+            pmcID = request.GET.get('pmcID')
+            
+            if not userID or not pmcID or not file_content:
+                return JsonResponse({'error': 'userID, pmcID, and file_content are required.'}, status=400)
+            
+            s3Key = f"annotations/{userID}/{pmcID}.json"
+
+            s3_service = S3Service()
+            s3_service.delete_annotation(s3Key, file_content)
+            return JsonResponse({'message': 'Annotation deleted successfully.'})
+        except Exception as e:
+            logging.error(f"Error deleting annotation: {e}")
+            return JsonResponse({'error': str(e)}, status=500)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ListArticlesView(View):
