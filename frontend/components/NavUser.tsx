@@ -97,12 +97,13 @@ export function NavUser() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="" />
-            <DropdownMenuGroup>
+            { /* TODO: TW - Uncomment if you want to add settings in the future */}
+            {/* <DropdownMenuGroup>
               <DropdownMenuItem className="" inset={false}>
                 <Settings />
                 Settings
               </DropdownMenuItem>
-            </DropdownMenuGroup>
+            </DropdownMenuGroup> */}
             <DropdownMenuGroup>
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger className="gap-2" inset={false}>

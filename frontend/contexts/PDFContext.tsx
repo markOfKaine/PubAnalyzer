@@ -265,6 +265,7 @@ export const PDFProvider = ({
             newMessage,
           ],
         };
+        uploadNewHighlight = updatedHighlights[existingIndex];
         return updatedHighlights;
       }
     });
@@ -285,13 +286,11 @@ export const PDFProvider = ({
     // On first highlight, we upload the new highlight
     // If the highlight already exists, we need to update chats so they are saved
     // in the backend
-    if (existingIndex === -1 && uploadNewHighlight) {
-      try {
-        // Uploads the highlight to the backend
-        await uploadAnnotation(uploadNewHighlight);
-      } catch (error) {
-        console.error("Error saving highlight:", error);
-      }
+    try {
+      // Uploads the highlight to the backend
+      await uploadAnnotation(uploadNewHighlight);
+    } catch (error) {
+      console.error("Error saving highlight:", error);
     }
   };
 

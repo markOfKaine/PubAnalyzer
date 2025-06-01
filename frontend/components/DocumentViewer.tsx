@@ -7,7 +7,7 @@ import {
 } from "react-pdf-highlighter";
 import { usePDFContext } from "@/contexts/PDFContext";
 import { AreaHighlight } from "react-pdf-highlighter";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLLMContext } from "@/contexts/LLMContext";
 import PDFNewNoteCard from "@/components/PDFNewNoteCard";
 

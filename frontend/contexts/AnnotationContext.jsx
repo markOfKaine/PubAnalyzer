@@ -34,8 +34,7 @@ export const AnnotationProvider = ({ children }) => {
         pdfURL &&
         selectedArticle.pmcid !== prevPmcIDRef.current
       ) {
-        console.log("url Loading annotations for PMCID:", selectedArticle.pmcid);
-        getAnnotations(selectedArticle.pmcid);
+        refreshAnnotations();
         prevPmcIDRef.current = selectedArticle.pmcid;
       } else {
         console.log("url Skipping annotation load - conditions not met", {
