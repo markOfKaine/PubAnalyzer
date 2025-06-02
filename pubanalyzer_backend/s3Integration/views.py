@@ -60,27 +60,29 @@ class DownloadAnnotationView(APIView):
             return Response(annotations)
         except Exception as e:
             logging.error(f"Error retrieving annotations: {e}")
-            return JsonResponse({'error': str(e)}, status=500)
+            return JsonResponse({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-@method_decorator(csrf_exempt, name='dispatch')
-class DeleteAnnotationView(View):
+
+class DeleteAnnotationView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def delete(self, request):
         try:
-            file_content = json.loads(request.body)
-            userID = request.GET.get('userID')
-            pmcID = request.GET.get('pmcID')
+            userID = request.data.get('userID')
+            pmcID = request.data.get('pmcID')
+            file_content = request.data.get('file_content')
             
             if not userID or not pmcID or not file_content:
-                return JsonResponse({'error': 'userID, pmcID, and file_content are required.'}, status=400)
+                return Response({'error': 'userID, pmcID, and file_content are required.'}, status=status.HTTP_400_BAD_REQUEST)
             
             s3Key = f"annotations/{userID}/{pmcID}.json"
 
             s3_service = S3Service()
             s3_service.delete_annotation(s3Key, file_content)
-            return JsonResponse({'message': 'Annotation deleted successfully.'})
+            return Response({'message': 'Annotation deleted successfully.'}, status=status.HTTP_200_OK)
         except Exception as e:
             logging.error(f"Error deleting annotation: {e}")
-            return JsonResponse({'error': str(e)}, status=500)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 @method_decorator(csrf_exempt, name='dispatch')
 class DeleteAllAnnotationsView(View):

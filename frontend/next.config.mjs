@@ -39,6 +39,10 @@ const nextConfig = {
         destination: "http://localhost:8000/s3/getAnnotations/",
       },
       {
+        source: "/s3/deleteAnnotation/",
+        destination: "http://localhost:8000/s3/deleteAnnotation/",
+      },
+      {
         source: "/llm/query/",
         destination: "http://localhost:8000/llm/query/",
       },

@@ -140,7 +140,7 @@ export const PDFProvider = ({
   children,
   initialUrl = "https://arxiv.org/pdf/1708.08021",
 }) => {
-  const { uploadAnnotation, annotations } = useAnnotationContext();
+  const { uploadAnnotation, annotations, deleteAnnotation } = useAnnotationContext();
   const [url, setUrl] = useState(initialUrl);
   const [highlights, setHighlights] = useState<Array<PubIHighlight>>([]);
   const [selectedHighlight, setSelectedHighlight] =
@@ -153,12 +153,26 @@ export const PDFProvider = ({
     return highlights.find((highlight) => highlight.id === id);
   };
 
-  const removeHighlight = (id: string) => {
+  const removeHighlight = async (id: string) => {
+    const highlightToDelete = getHighlightById(id);
+
+    if (!highlightToDelete) {
+      console.log(`Highlight with id ${id} not found. No highlight was deleted.`);
+      return;
+    }
+
     setHighlights((prevHighlights) =>
       prevHighlights.filter((highlight) => highlight.id !== id)
     );
+
     if (selectedHighlight?.id === id) {
       setSelectedHighlight(null);
+    }
+
+    try {
+      await deleteAnnotation(highlightToDelete);
+    } catch (error) {
+      console.error("Error deleting highlight:", error);
     }
   };
 
@@ -375,7 +389,8 @@ export const PDFProvider = ({
     }
   };
 
-  const resetHighlights = () => {
+  const resetHighlights = async () => {
+    // TODO: TW - need to implement a way to delete all highlights from the backend
     setHighlights([]);
   };
 
