@@ -118,6 +118,17 @@ class S3Service:
             logging.error(f"Failed to delete annotation: {e}")
             raise
 
+    def delete_annotations(self, s3Key):
+        try:
+            logging.info(f"Deleting all annotations from S3 with key {s3Key}.")
+            self.s3_client.delete_object(Bucket=self.bucket_name, Key=s3Key)
+            logging.info(f"All annotations deleted successfully from {s3Key}.")
+        except self.s3_client.exceptions.NoSuchKey:
+            logging.warning(f"No annotations found for key {s3Key}. Nothing to delete.")
+        except Exception as e:
+            logging.error(f"Failed to delete annotations: {e}")
+            raise
+
     def upload_file(self, file_name, file_path):
         if not os.path.isfile(file_path):
             logging.error(f"File not found at {file_path}")

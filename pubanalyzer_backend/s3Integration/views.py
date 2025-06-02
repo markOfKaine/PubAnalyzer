@@ -81,6 +81,25 @@ class DeleteAnnotationView(View):
         except Exception as e:
             logging.error(f"Error deleting annotation: {e}")
             return JsonResponse({'error': str(e)}, status=500)
+        
+@method_decorator(csrf_exempt, name='dispatch')
+class DeleteAllAnnotationsView(View):
+    def delete(self, request):
+        try:
+            userID = request.GET.get('userID')
+            pmcID = request.GET.get('pmcID')
+            
+            if not userID or not pmcID:
+                return JsonResponse({'error': 'userID and pmcID are required.'}, status=400)
+            
+            s3Key = f"annotations/{userID}/{pmcID}.json"
+
+            s3_service = S3Service()
+            s3_service.delete_annotations(s3Key)
+            return JsonResponse({'message': 'All annotations deleted successfully.'})
+        except Exception as e:
+            logging.error(f"Error deleting all annotations: {e}")
+            return JsonResponse({'error': str(e)}, status=500)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ListArticlesView(View):
