@@ -43,7 +43,13 @@ function AnnotationBar() {
           ))}
         </ul>
       </div>
-      <div className="pt-4 border-t mt-4 w-full">
+      {/*
+      TODO: TW - need to implement a way to delete all highlights from the backend
+      Tried to call deletAnnotation for each highlight but the backend
+      was not working correctly while doing so.
+      Disabling the component for now
+    */}
+      {/* <div className="pt-4 border-t mt-4 w-full">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
@@ -79,7 +85,7 @@ function AnnotationBar() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </div>
+      </div> */}
     </div>
   );
 }
