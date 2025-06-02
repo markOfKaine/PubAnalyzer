@@ -18,6 +18,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { usePMContext } from "@/contexts/PubMedContext";
+import { useAnnotationContext } from "@/contexts/AnnotationContext";
 
 const data = {
   navMain: [
@@ -50,6 +51,7 @@ function AppSidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const { pdfURL } = usePMContext();
+  const { refreshAnnotations } = useAnnotationContext();
 
   const showSideBarTrigger = hasSideBarTrigger.includes(pathname) && pdfURL;
 
@@ -78,6 +80,9 @@ function AppSidebar() {
                         router.push(item.url);
                         // TW - Can make certain menu items open the bar if needed
                         // setOpen(true);
+                        if (item.url === "/viewer") {
+                          refreshAnnotations();
+                        }
                       }}
                       isActive={pathname === item.url}
                       className="px-2.5 md:px-2"
