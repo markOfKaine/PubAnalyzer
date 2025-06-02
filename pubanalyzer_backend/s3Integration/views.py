@@ -1,51 +1,63 @@
 from django.http import JsonResponse
 from django.views import View
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.utils.decorators import method_decorator
 from .S3Service import S3Service
 from pmcIntegration.DocManager import DocManager
 import logging
 import json
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 
-@method_decorator(csrf_exempt, name='dispatch')
-class UploadAnnotationView(View):
+class UploadAnnotationView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         try:
-            file_content = json.loads(request.body)
-            userID = request.GET.get('userID')
-            pmcID = request.GET.get('pmcID')
-            # file_content = data.get('file_content')
+            userID = request.data.get('userID')
+            pmcID = request.data.get('pmcID')
+            file_content = request.data.get('file_content')
             
             if not userID or not pmcID or not file_content:
-                return JsonResponse({'error': 'userID, pmcID, and file_content are required.'}, status=400)
+                return Response({'error': 'userID, pmcID, and file_content are required.'}, 
+                                    status=status.HTTP_400_BAD_REQUEST)
             
             s3Key = f"annotations/{userID}/{pmcID}.json"
 
             s3_service = S3Service()
             s3_service.upload_annotation(s3Key, file_content)
-            return JsonResponse({'message': 'Annotation uploaded successfully.'})
+            return Response({'message': 'Annotation uploaded successfully.'})
         except Exception as e:
             logging.error(f"Error uploading annotation: {e}")
-            return JsonResponse({'error': str(e)}, status=500)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-@method_decorator(csrf_exempt, name='dispatch')
-class DownloadAnnotationView(View):
-    def get(self, request):
+
+class DownloadAnnotationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):        
         try:
-            userID = request.GET.get('userID')
-            pmcID = request.GET.get('pmcID')
+            userID = request.query_params.get('userID')
+            pmcID = request.query_params.get('pmcID')
+            
+            if str(request.user.id) != userID:
+                return Response(
+                    {'error': 'You can only access your own annotations'}, 
+                    status=status.HTTP_403_FORBIDDEN)
             
             if not userID or not pmcID:
-                return JsonResponse({'error': 'userID and pmcID are required.'}, status=400)
+                return Response({'error': 'userID and pmcID are required.'}, status=status.HTTP_400_BAD_REQUEST)
             
             s3Key = f"annotations/{userID}/{pmcID}.json"
             s3_service = S3Service()
             annotations = s3_service.get_annotations(s3Key)
             
             if annotations is None:
-                return JsonResponse({'error': 'No annotations found.'}, status=404)
+                return Response({'error': 'No annotations found.'}, status=status.HTTP_404_NOT_FOUND)
             
-            return JsonResponse(annotations, safe=False)
+            return Response(annotations)
         except Exception as e:
             logging.error(f"Error retrieving annotations: {e}")
             return JsonResponse({'error': str(e)}, status=500)

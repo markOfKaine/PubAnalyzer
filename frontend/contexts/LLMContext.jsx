@@ -1,6 +1,6 @@
 "use client";
 import { useContext, useState, createContext } from "react";
-import { string } from "zod";
+import { apiCall, apiCallWithFormData } from "@/utilities/api";
 
 const LLMContext = createContext();
 
@@ -11,7 +11,6 @@ export const LLMProvider = ({ children }) => {
   const [llmResponse, setLLMResponse] = useState(null);
   const [llmLoading, setLLMLoading] = useState(false);
 
-  // TODO: TW - Add save chat endpoint and update endpoint to real endpoint
   const fetchLLMTextResponse = async (prompt, image = null) => {
     setLLMLoading(true);
 
@@ -22,13 +21,12 @@ export const LLMProvider = ({ children }) => {
     }
 
     try {
-      let requestBody;
-      let headers = {};
+      let response;
 
       if (image) {
         const formData = new FormData();
         formData.append("prompt", prompt);
-        
+
         // Check if image is a data URL string and convert to blob
         if (typeof image === "string" && image.startsWith("data:")) {
           console.log("Image is a data URL, converting to blob");
@@ -40,18 +38,13 @@ export const LLMProvider = ({ children }) => {
           formData.append("image", image);
         }
 
-        requestBody = formData;
+        response = await apiCallWithFormData("/llm/query/", formData);
       } else {
-        headers["Content-Type"] = "application/json";
-        requestBody = JSON.stringify({ prompt: prompt });
+        response = await apiCall("/llm/query/", {
+          method: "POST",
+          body: JSON.stringify({ prompt: prompt }),
+        });
       }
-
-      const response = await fetch(`http://127.0.0.1:8000/llm/query/`, {
-        method: "POST",
-        headers: headers,
-        credentials: "include",
-        body: requestBody,
-      });
 
       console.log("LLM Response status:", response.status);
 
@@ -63,11 +56,10 @@ export const LLMProvider = ({ children }) => {
       }
 
       const errorData = await response.json();
-      console.error("Error details for LLM Response:", errorData);
-      return { success: false, error: errorData };
+      throw new Error(`HTTP ${response.status}: ${errorData.error || response.statusText}`);
     } catch (error) {
       console.error("Error fetching LLM Response:", error);
-      return { success: false, error: error };
+      return { success: false, error: error.message };
     } finally {
       setLLMLoading(false);
     }

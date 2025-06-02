@@ -24,11 +24,13 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 import { usePMContext } from "@/contexts/PubMedContext";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { set } from "react-hook-form";
+import { useAnnotationContext } from "@/contexts/AnnotationContext";
+import { useUserDocContext } from "@/contexts/UserDocumentContext";
 
 function ArticleCard({ article }) {
   const {
@@ -45,10 +47,17 @@ function ArticleCard({ article }) {
     pages,
     abstractUrl,
     pdfUrl,
-    abstractText
+    abstractText,
   } = article;
 
-  const { fetchPDFToDisplay, loading, fetchArticleAbstract, setSelectedArticle } = usePMContext();
+  const {
+    fetchPDFToDisplay,
+    loading,
+    fetchArticleAbstract,
+    setSelectedArticle,
+  } = usePMContext();
+  const { getAnnotations } = useAnnotationContext();
+  const { addUserDocument } = useUserDocContext();
   const router = useRouter();
   const [isFetchingPDF, setIsFetchingPDF] = useState(false);
   const [error, setError] = useState(null);
@@ -56,23 +65,24 @@ function ArticleCard({ article }) {
   const handleArticleClick = async () => {
     setIsFetchingPDF(true);
     setError(null);
-    
+
     try {
       const pmcid = article.pmcid;
-      const pdfResponse = await fetchPDFToDisplay(pmcid);
-
+      const pdfResponse = await fetchPDFToDisplay(article);
       if (pdfResponse.success) {
-        // TODO: When llm token limit is increased, we can use the abstract text in the prompt
-        // uncomment when ready
-        // if (!article.abstractText) {
-        //   const abstractResponse = await fetchArticleAbstract(id);
+        if (!article.abstractText) {
+          const abstractResponse = await fetchArticleAbstract(id);
 
-        //   if (abstractResponse.success) {
-        //     article.abstractText = abstractResponse.abstract;
-        //   } else {
-        //     console.error("Failed to fetch abstract:", abstractResponse.error);
-        //   }
-        // }
+          if (abstractResponse.success) {
+            article.abstractText = abstractResponse.abstract;
+          } else {
+            console.error("Failed to fetch abstract:", abstractResponse.error);
+          }
+        }
+
+        addUserDocument(pmcid);
+        await getAnnotations(pmcid);
+
         setSelectedArticle(article);
         router.push("/viewer");
         return;
@@ -122,15 +132,23 @@ function ArticleCard({ article }) {
       <Card className="w-full hover:shadow-md transition-all duration-200 hover:border-primary/50">
         <CardHeader className="">
           <div className="flex justify-between items-start gap-2">
-            <CardTitle className="text-lg font-semibold line-clamp-2 text-primary/70">
-              {title}
-            </CardTitle>
+            {title ? (
+              <CardTitle className="text-lg font-semibold line-clamp-2 text-primary/70">
+                {title}
+              </CardTitle>
+            ) : (
+              <Skeleton className="h-6 w-3/4" />
+            )}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Badge variant="outline" className="px-2 py-0 text-xs">
-                    PMC: {pmcid}
-                  </Badge>
+                  {pmcid ? (
+                    <Badge variant="outline" className="px-2 py-0 text-xs">
+                      PMC: {pmcid}
+                    </Badge>
+                  ) : (
+                    <Skeleton className="h-5 w-16" />
+                  )}
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>PMC ID: {pmcid}</p>
@@ -143,49 +161,66 @@ function ArticleCard({ article }) {
 
           <div className="flex items-center text-muted-foreground text-sm mt-1 gap-1">
             <BookMarked className="h-3 w-3 mr-1" />
-            <span className="font-medium">{journal}</span>
-            {volume !== "N/A" && (
+            {journal ? (
               <>
-                <span className="mx-1">•</span>
-                <span>Vol. {volume}</span>
+                <span className="font-medium">{journal}</span>
+                {volume !== "N/A" && (
+                  <>
+                    <span className="mx-1">•</span>
+                    <span>Vol. {volume}</span>
+                  </>
+                )}
+                {issue !== "N/A" && (
+                  <>
+                    <span className="mx-1">•</span>
+                    <span>Issue {issue}</span>
+                  </>
+                )}
+                {pages !== "N/A" && (
+                  <>
+                    <span className="mx-1">•</span>
+                    <span>pp. {pages}</span>
+                  </>
+                )}
               </>
-            )}
-            {issue !== "N/A" && (
-              <>
-                <span className="mx-1">•</span>
-                <span>Issue {issue}</span>
-              </>
-            )}
-            {pages !== "N/A" && (
-              <>
-                <span className="mx-1">•</span>
-                <span>pp. {pages}</span>
-              </>
+            ) : (
+              <Skeleton className="h-4 w-48" />
             )}
           </div>
         </CardHeader>
 
         <CardContent className="">
           <div className="flex gap-x-2 text-sm">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-3 w-3 text-muted-foreground" />
-              <span>{pubDate}</span>
-              <span className="mx-1">•</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger className="text-left line-clamp-1 hover:underline hover:text-primary cursor-help">
-                    {displayAuthors()}
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p className="font-medium">Authors:</p>
-                    <p>{fullAuthorsList()}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
+            {pubDate ? (
+              <div className="flex items-center gap-2">
+                <Calendar className="h-3 w-3 text-muted-foreground" />
+                <span>{pubDate}</span>
+                <span className="mx-1">•</span>
+              </div>
+            ) : (
+              <Skeleton className="h-4 w-20" />
+            )}
+            {authors ? (
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger className="text-left line-clamp-1 hover:underline hover:text-primary cursor-help">
+                      {displayAuthors()}
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="font-medium">Authors:</p>
+                      <p>{fullAuthorsList()}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <Skeleton className="h-4 w-40" />
+              </div>
+            )}
           </div>
         </CardContent>
 
@@ -193,62 +228,81 @@ function ArticleCard({ article }) {
 
         <CardFooter className="flex justify-between">
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 gap-2"
-              disabled={loading}
-              onClick={(e) => {
-                console.log("PubAnalyzer clicked");
-                e.stopPropagation();
-                handleArticleClick();
-              }}
-            >
-              <Image src="/pubby.png" alt="Pubby Logo" width={20} height={20} />
-              PubAnalyzer
-            </Button>
+            {title ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-2"
+                disabled={loading}
+                onClick={(e) => {
+                  console.log("PubAnalyzer clicked");
+                  e.stopPropagation();
+                  handleArticleClick();
+                }}
+              >
+                <Image
+                  src="/pubby.png"
+                  alt="Pubby Logo"
+                  width={20}
+                  height={20}
+                />
+                PubAnalyzer
+              </Button>
+            ) : (
+              <Skeleton className="h-8 w-32" />
+            )}
           </div>
 
           <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 gap-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(abstractUrl, "_blank");
-              }}
-            >
-              <BookOpenCheck className="h-4 w-4" />
-              Abstract
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 gap-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(pdfUrl, "_blank");
-              }}
-            >
-              <FileText className="h-4 w-4" />
-              PDF
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 gap-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (doi) {
-                  window.open(`https://doi.org/${doi}`, "_blank");
-                }
-              }}
-              disabled={!doi}
-            >
-              <ExternalLink className="h-4 w-4" />
-              View DOI
-            </Button>
+            {title ? (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 gap-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(abstractUrl, "_blank");
+                  }}
+                >
+                  <BookOpenCheck className="h-4 w-4" />
+                  Abstract
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 gap-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(pdfUrl, "_blank");
+                  }}
+                >
+                  <FileText className="h-4 w-4" />
+                  PDF
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 gap-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (doi) {
+                      window.open(`https://doi.org/${doi}`, "_blank");
+                    }
+                  }}
+                  disabled={!doi}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  View DOI
+                </Button>
+              </>
+            ) : (
+              <>
+                <Skeleton className="h-8 w-24" />
+                <Skeleton className="h-8 w-16" />
+                <Skeleton className="h-8 w-24" />
+              </>
+            )}
           </div>
         </CardFooter>
       </Card>

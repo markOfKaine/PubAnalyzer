@@ -103,14 +103,14 @@ function NavBar() {
             {/* TW - remove the ! to see the avatar logo and drop down menu. Make sure to place it back! */}
             <div className="hidden md:flex items-center gap-2">
               {/* TODO: TW - Add a FAQ page...*/}
-              <Link href="/">
+              {/* <Link href="/">
                 <Button
                   variant="ghost"
                   className="flex items-center gap-2 text-lg"
                 >
                   <span>FAQ</span>
                 </Button>
-              </Link>
+              </Link> */}
               <Link href="/signin">
                 <Button
                   variant="ghost"

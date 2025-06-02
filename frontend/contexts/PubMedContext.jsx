@@ -1,5 +1,6 @@
 "use client";
 import { useContext, useState, createContext, useEffect } from "react";
+import { apiCall } from "@/utilities/api";
 
 const PubMedContext = createContext();
 
@@ -7,26 +8,63 @@ export const usePMContext = () => useContext(PubMedContext);
 
 export const PubMedProvider = ({ children }) => {
   
-  const [pdfURL, setPDFURL] = useState(null);
-  const [selectedArticle, setSelectedArticle] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [pdfURL, setPDFURL] = useState(null);
+  const [selectedArticle, setSelectedArticle] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const savedArticle = localStorage.getItem("pubAnalyzer_selectedArticle");
+        return savedArticle ? JSON.parse(savedArticle) : null;
+      } catch (error) {
+        console.log("Unable to load saved article, error:", error);
+        return null;
+      }
+    }
+    console.log("Unable to load saved article");
+    return null;
+  });
 
-  // TODO: TW - Replace with actual API endpoint
+  // Load saved PDF if PMCID is stored in localStorage
+  // This will run on initial load to check if a PMCID is saved
+  // helpful for refreshing the page without losing the PDF
+  useEffect(() => {
+    const loadSavedPDF = async () => {
+      if (selectedArticle?.pmcid && !pdfURL) {
+        await fetchPDFToDisplay(selectedArticle);
+      }
+    };
+    
+    loadSavedPDF();
+  }, []); 
+
+  // Save selectedArticle to localStorage when it changes
+  useEffect(() => {
+    if (typeof window !== "undefined" && selectedArticle) {
+      try {
+        localStorage.setItem(
+          "pubAnalyzer_selectedArticle",
+          JSON.stringify(selectedArticle)
+        );
+      } catch (error) {
+        console.log("Error saving article to localStorage:", error);
+      }
+    }
+  }, [selectedArticle]);
+
   // sample pmc id: 10579494
-
   // Fetch a PDF to display based on the provided PMC ID
-  const fetchPDFToDisplay = async (pmcid) => {
+  const fetchPDFToDisplay = async (articleData) => {
     setLoading(true);
-    setSelectedArticle(null);
 
     try {
+      if (articleData) {
+        setSelectedArticle(articleData);
+      }
+
+      const pmcid = articleData.pmcid
       const encodedPmcid = encodeURIComponent(pmcid);
-      const response = await fetch(`http://127.0.0.1:8000/pmc/display/${encodedPmcid}.pdf`, {
+      const response = await apiCall(`/pmc/display/${encodedPmcid}.pdf`, {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
         }
       );
       console.log("Response status:", response.status);
@@ -36,16 +74,15 @@ export const PubMedProvider = ({ children }) => {
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
         setPDFURL(url);
-        setLoading(false);
+
         return { success: true };
       }
 
-      console.error("Error fetching PDF:", response.status, response.statusText);
       const errorData = await response.json();
-      return { success: false, error: errorData };
+      throw new Error(`HTTP ${response.status}: ${errorData.error || response.statusText}`);
     } catch (error) {
       console.error("Error fetching PDF:", error);
-      return { success: false, error: error };
+      return { success: false, error: error.message };
     } finally {
       setLoading(false);
     }
@@ -208,10 +245,9 @@ export const PubMedProvider = ({ children }) => {
         return { success: true, abstract: abstractText };
       }
 
-      console.log("No abstract found");
-      return { success: false, error: "No abstract found" };
+      throw new Error("No abstract found");
     } catch (error) {
-      console.error("Error fetching abstract:", error);
+      console.log("Error fetching abstract:", error);
       return { success: false, error: error };
     }    
   }
@@ -221,6 +257,7 @@ export const PubMedProvider = ({ children }) => {
     fetchPDFToDisplay,
     fetchArticleAbstract,
     searchAndGetSummaries,
+    getPMCSummaries,
     setSelectedArticle,
     selectedArticle,
   };
