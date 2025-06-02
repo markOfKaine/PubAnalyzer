@@ -122,10 +122,42 @@ export const AnnotationProvider = ({ children }) => {
         }
     };
 
+    const deleteAnnotation = async (annotationData) => {
+        setLoading(true);
+
+        try {
+            const uploadData = {
+                userID: user.id,
+                pmcID: selectedArticle.pmcid,
+                file_content: annotationData,
+            }
+
+            const response = await apiCall(`/s3/deleteAnnotation/`, {
+                method: "DELETE",
+                body: JSON.stringify(uploadData),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Annotations Deleted Successfully:", data.message);
+                return { success: true };
+            }
+
+            const errorData = await response.json();
+            throw new Error(`HTTP ${response.status}: ${errorData.error || response.statusText}`);
+        } catch (error) {
+            console.error("Error deleting annotation:", error);
+            return { success: false, error: error.message };
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const contextValue = {
         annotations,
         uploadAnnotation,
         getAnnotations,
+        deleteAnnotation,
         refreshAnnotations,
         loading,
     };
