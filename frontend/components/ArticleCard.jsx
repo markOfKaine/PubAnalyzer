@@ -7,6 +7,7 @@ import {
   BookOpenCheck,
   ExternalLink,
   Loader2,
+  Heart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,7 +33,7 @@ import { useRouter } from "next/navigation";
 import { useAnnotationContext } from "@/contexts/AnnotationContext";
 import { useUserDocContext } from "@/contexts/UserDocumentContext";
 
-function ArticleCard({ article }) {
+function ArticleCard({ article, isFavorite = false, onToggleFavorite }) {
   const {
     id,
     pmcid,
@@ -132,31 +133,67 @@ function ArticleCard({ article }) {
       <Card className="w-full hover:shadow-md transition-all duration-200 hover:border-primary/50">
         <CardHeader className="">
           <div className="flex justify-between items-start gap-2">
-            {title ? (
-              <CardTitle className="text-lg font-semibold line-clamp-2 text-primary/70">
-                {title}
-              </CardTitle>
-            ) : (
-              <Skeleton className="h-6 w-3/4" />
-            )}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  {pmcid ? (
-                    <Badge variant="outline" className="px-2 py-0 text-xs">
-                      PMC: {pmcid}
-                    </Badge>
-                  ) : (
-                    <Skeleton className="h-5 w-16" />
-                  )}
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>PMC ID: {pmcid}</p>
-                  {pmid && <p>PMID: {pmid}</p>}
-                  {doi && <p>DOI: {doi}</p>}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <div className="flex-1">
+              {title ? (
+                <CardTitle className="text-lg font-semibold line-clamp-2 text-primary/70">
+                  {title}
+                </CardTitle>
+              ) : (
+                <Skeleton className="h-6 w-3/4" />
+              )}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {/* Favorite Button - only show if onToggleFavorite is provided */}
+              {onToggleFavorite && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 hover:bg-red-50"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleFavorite();
+                        }}
+                      >
+                        <Heart 
+                          className={`h-4 w-4 transition-colors ${
+                            isFavorite 
+                              ? 'fill-red-500 text-red-500' 
+                              : 'text-gray-400 hover:text-red-400'
+                          }`}
+                        />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{isFavorite ? 'Remove from favorites' : 'Add to favorites'}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+
+              {/* PMC Badge */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    {pmcid ? (
+                      <Badge variant="outline" className="px-2 py-0 text-xs">
+                        PMC: {pmcid}
+                      </Badge>
+                    ) : (
+                      <Skeleton className="h-5 w-16" />
+                    )}
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>PMC ID: {pmcid}</p>
+                    {pmid && <p>PMID: {pmid}</p>}
+                    {doi && <p>DOI: {doi}</p>}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
 
           <div className="flex items-center text-muted-foreground text-sm mt-1 gap-1">

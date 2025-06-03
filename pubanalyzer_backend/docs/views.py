@@ -127,16 +127,16 @@ class FavoriteStudiesView(OriginCheck, APIView):
             return Response({"error": "Missing study_id"}, status=400)
 
         study, _ = Study.objects.get_or_create(study_id=study_id)
-        request.user.studies.favorited_studies.add(study)
+        request.user.studies.favorite_studies.add(study)
 
-        return Response({"message": "Study favorited"})
+        return Response({"message": "Study favorite"})
 
     def get(self, request):
         if not request.user.is_authenticated:
             return Response({'error': 'Authentication required'}, status=401)
 
-        favorites = request.user.studies.favorited_studies.all()
-        return Response({"favorited_studies": [s.study_id for s in favorites]})
+        favorites = request.user.studies.favorite_studies.all()
+        return Response({"favorite_studies": [s.study_id for s in favorites]})
     
     def delete(self, request):
         if not request.user.is_authenticated:
@@ -148,7 +148,7 @@ class FavoriteStudiesView(OriginCheck, APIView):
 
         try:
             study = Study.objects.get(study_id=study_id)
-            request.user.studies.favorited_studies.remove(study)
+            request.user.studies.favorite_studies.remove(study)
             return Response({"message": "Study removed from favorites"})
         except Study.DoesNotExist:
             return Response({"error": "Study not found"}, status=404)

@@ -12,14 +12,17 @@ export const UserDocumentProvider = ({ children }) => {
     const { getPMCSummaries } = usePMContext();
     const { user } = useUserContext();
     const [allUserDocuments, setAllUserDocuments] = useState([]);
+    const [favoriteDocuments, setFavoriteDocuments] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    // Fetch user documents on login 
+    // Fetch user documents and favorites on login 
     useEffect(() => {
         if (user?.id && allUserDocuments.length === 0) {
             getAllUserDocuments();
+            getFavoriteStudies();
         } else if (!user?.id) {
             setAllUserDocuments([]);
+            setFavoriteDocuments([]);
         }
     }, [user?.id]);
 
@@ -118,6 +121,92 @@ export const UserDocumentProvider = ({ children }) => {
         return await getAllUserDocuments();
     };
 
+    const getFavoriteStudies = async () => {
+        try {
+            console.log("Fetching favorite studies...");
+            const response = await apiCall("/api/favorite_studies/", {
+                method: "GET",
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Favorite studies retrieved:", data.favorite_studies); // Changed from favorited_studies
+                setFavoriteDocuments(data.favorite_studies || []); // Changed from favorited_studies
+                return { success: true, favorites: data.favorite_studies || [] }; // Changed from favorited_studies
+            }
+
+            const errorData = await response.json();
+            throw new Error(`HTTP ${response.status}: ${errorData.error || response.statusText}`);
+        } catch (error) {
+            console.error("Error fetching favorite studies:", error);
+            setFavoriteDocuments([]);
+            return { success: false, error: error.message };
+        }
+    };
+
+    const addFavoriteStudy = async (pmcID) => {
+        try {
+            console.log("Adding favorite study:", pmcID);
+            const response = await apiCall("/api/favorite_studies/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ study_id: pmcID }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Study favorited:", data.message);
+                setFavoriteDocuments(prev => [...prev, pmcID]);
+                return { success: true, message: data.message };
+            }
+
+            const errorData = await response.json();
+            throw new Error(`HTTP ${response.status}: ${errorData.error || response.statusText}`);
+        } catch (error) {
+            console.error("Error adding favorite study:", error);
+            return { success: false, error: error.message };
+        }
+    };
+
+    const removeFavoriteStudy = async (pmcID) => {
+        try {
+            console.log("Removing favorite study:", pmcID);
+            const response = await apiCall("/api/favorite_studies/", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ study_id: pmcID }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Study unfavorited:", data.message);
+                setFavoriteDocuments(prev => prev.filter(id => id !== pmcID));
+                return { success: true, message: data.message };
+            }
+
+            const errorData = await response.json();
+            throw new Error(`HTTP ${response.status}: ${errorData.error || response.statusText}`);
+        } catch (error) {
+            console.error("Error removing favorite study:", error);
+            return { success: false, error: error.message };
+        }
+    };
+
+    const toggleFavorite = async (pmcID) => {
+        // Check if it's currently favorited
+        const isFavorited = favoriteDocuments.includes(pmcID);
+        
+        if (isFavorited) {
+            return await removeFavoriteStudy(pmcID);
+        } else {
+            return await addFavoriteStudy(pmcID);
+        }
+    };
+
+    const isFavorite = (pmcID) => {
+        return favoriteDocuments.includes(pmcID);
+    };
+
     const contextValue = {
         allUserDocuments,
         addUserDocument,
@@ -125,6 +214,12 @@ export const UserDocumentProvider = ({ children }) => {
         getAllUserDocumentIDs,
         refreshUserDocuments,
         loading,
+        favoriteDocuments,
+        getFavoriteStudies,
+        addFavoriteStudy,
+        removeFavoriteStudy,
+        toggleFavorite,
+        isFavorite,
     };
 
     return (

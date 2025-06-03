@@ -23,6 +23,10 @@ const nextConfig = {
         destination: "http://localhost:8000/api/csrf/",
       },
       {
+        source: "/api/favorite_studies/",
+        destination: "http://localhost:8000/api/favorite_studies/",
+      },
+      {
         source: "/pmc/display/:pmcid.pdf",
         destination: "http://localhost:8000/pmc/display/:pmcid.pdf",
       },
