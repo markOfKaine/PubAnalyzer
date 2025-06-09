@@ -9,9 +9,9 @@ from rest_framework import status
 from django.utils.decorators import method_decorator
 from .models import UserStudies, Study
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie, csrf_protect
-from django.http import JsonResponse
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.throttling import ScopedRateThrottle
 
 class OriginCheck:
     allowed_origin = "http://localhost:3000" #change to frontend URL in production
@@ -24,6 +24,8 @@ class OriginCheck:
 
 class RegisterView(OriginCheck, generics.CreateAPIView):
     permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'register'
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -45,6 +47,8 @@ class RegisterView(OriginCheck, generics.CreateAPIView):
     
 class UserAuthView(OriginCheck, APIView):
     permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'auth_status'
 
     def get(self, request):
         if request.user.is_authenticated:
@@ -59,6 +63,8 @@ class UserAuthView(OriginCheck, APIView):
 
 class SessionLoginView(OriginCheck, APIView):
     permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'login'
 
     def post(self, request):
         username = request.data.get('username')
@@ -85,6 +91,8 @@ class SessionLoginView(OriginCheck, APIView):
 
 class LogoutView(OriginCheck, APIView):
     permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'logout'
 
     def post(self, request):
         logout(request)
@@ -93,6 +101,8 @@ class LogoutView(OriginCheck, APIView):
 
 class AnnotatedStudiesView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'annotated_studies'
 
     def post(self, request):
         if not request.user.is_authenticated:
@@ -117,6 +127,8 @@ class AnnotatedStudiesView(APIView):
     
 class FavoriteStudiesView(OriginCheck, APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'favorite_studies'
 
     def post(self, request):
         if not request.user.is_authenticated:
@@ -153,6 +165,11 @@ class FavoriteStudiesView(OriginCheck, APIView):
         except Study.DoesNotExist:
             return Response({"error": "Study not found"}, status=404)
 
-@ensure_csrf_cookie
-def get_csrf_token(request):
-    return JsonResponse({'success': True})
+class CSRFTokenView(APIView):
+    permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'csrf'
+
+    @method_decorator(ensure_csrf_cookie)
+    def get(self, request):
+        return Response({'success': True})

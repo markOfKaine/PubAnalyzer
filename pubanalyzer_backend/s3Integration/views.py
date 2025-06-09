@@ -1,6 +1,5 @@
 from django.http import JsonResponse
-from django.views import View
-from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from .S3Service import S3Service
 from pmcIntegration.DocManager import DocManager
@@ -8,7 +7,7 @@ import logging
 import json
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 
 class UploadAnnotationView(APIView):
@@ -85,7 +84,9 @@ class DeleteAnnotationView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 @method_decorator(csrf_exempt, name='dispatch')
-class DeleteAllAnnotationsView(View):
+class DeleteAllAnnotationsView(APIView):
+    permission_classes = [AllowAny]
+
     def delete(self, request):
         try:
             userID = request.GET.get('userID')
@@ -104,57 +105,63 @@ class DeleteAllAnnotationsView(View):
             return JsonResponse({'error': str(e)}, status=500)
 
 @method_decorator(csrf_exempt, name='dispatch')
-class ListArticlesView(View):
+class ListArticlesView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request):
         try:
             s3_service = S3Service()
             articles = s3_service.list_articles()
             logging.info(f"Articles listed successfully: {articles}")
-            return JsonResponse(articles, safe=False)
+            return Response(articles)
         except Exception as e:
             logging.error(f"Error listing articles: {e}")
-            return JsonResponse({'error': str(e)}, status=500)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-@method_decorator(csrf_exempt, name='dispatch')    
-class UploadArticleView(View):
+@method_decorator(csrf_exempt, name='dispatch')
+class UploadArticleView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         try:
             data = json.loads(request.body)
-            file_name = data.get('file_name') ##filename should be unique (userID + pmcID)
+            file_name = data.get('file_name')  # filename should be unique (userID + pmcID)
             file_content = data.get('file_content')
-            
+
             if not file_name or not file_content:
-                return JsonResponse({'error': 'file_name and file_content are required.'}, status=400)
-            
-            ##send to docManager to check if the file is a duplicate
+                return Response({'error': 'file_name and file_content are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # send to docManager to check if the file is a duplicate
             docManager = DocManager._instance()
             docManager.add_document(file_name, file_content)
             logging.info(f"File {file_content} uploaded successfully as {file_name}.")
-            return JsonResponse({'message': 'File uploaded successfully.'})
+            return Response({'message': 'File uploaded successfully.'})
         except Exception as e:
             logging.error(f"Error uploading file: {e}")
-            return JsonResponse({'error': str(e)}, status=500)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-@method_decorator(csrf_exempt, name='dispatch')    
-class DownloadArticleView(View):
+@method_decorator(csrf_exempt, name='dispatch')
+class DownloadArticleView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request):
         try:
             file_name = json.loads(request.body).get('file_name')
-                
+
             if not file_name:
-                return JsonResponse({'error': 'file_name is required.'}, status=400)
-            
+                return Response({'error': 'file_name is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
             docManager = DocManager()
             file = docManager.get_document(file_name)
-                
+
             if file:
                 logging.info(f"File {file_name} downloaded successfully.")
-                return JsonResponse({'file_content': file})
+                return Response({'file_content': file})
             else:
-                return JsonResponse({'error': 'File not found.'}, status=404)
+                return Response({'error': 'File not found.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             logging.error(f"Error downloading file: {e}")
-            return JsonResponse({'error': str(e)}, status=500)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 # @method_decorator(csrf_exempt, name='dispatch')
 # class DeleteArticleView(View):

@@ -95,7 +95,23 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
-    ]
+    ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '30/min',
+        'user': '60/min',
+        'register': '5/min',
+        'login': '10/min',
+        'logout': '30/min',
+        'auth_status': '30/min',
+        'annotated_studies': '20/min',
+        'favorite_studies': '20/min',
+        'csrf': '60/min',
+        'llm_query': '10/min', 
+    }
 }
 
 ROOT_URLCONF = 'pubanalyzer_backend.urls'
